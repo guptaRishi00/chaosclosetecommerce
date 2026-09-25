@@ -149,6 +149,12 @@
   html {
     @apply font-sans;
   }
+  /* Safety net: nothing may pan the page sideways on a phone (real-device font metrics differ
+     from emulation by a few px). `clip`, unlike `hidden`, creates no scroll container, so the
+     sticky navbar keeps working. Real overflow still gets fixed at the source. */
+  body {
+    overflow-x: clip;
+  }
 }
 /* Announcement-bar marquee: two identical tracks, shift by exactly one track width. */
 @keyframes marquee {

@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import Image from "next/image";
+import { getImageProps } from "next/image";
 import Link from "next/link";
 import Autoplay from "embla-carousel-autoplay";
 import { Button } from "@/components/ui/button";
@@ -16,12 +16,43 @@ import {
 import { cn } from "@/lib/utils";
 
 export type HeroSlide = {
+  /** Desktop / tablet image (landscape). */
   src: string;
+  /** Phone image (portrait, ~9:16) for screens under 768px. Falls back to `src`. */
+  mobileSrc?: string;
   alt: string;
   eyebrow: string;
   title: string;
   cta: { label: string; href: string };
 };
+
+const MOBILE = "(max-width: 767px)";
+
+/**
+ * Art-directed hero image: a portrait photo on phones, the landscape one above. <picture>
+ * lets the browser download only the matching image (two <Image>s toggled with CSS would
+ * fetch both). getImageProps keeps next/image's optimised srcsets for each source.
+ */
+function HeroImage({ slide, priority }: { slide: HeroSlide; priority: boolean }) {
+  // getImageProps drops `priority` (no preload link), so mark the LCP slide directly.
+  const common = {
+    alt: slide.alt,
+    fill: true,
+    sizes: "100vw",
+    loading: priority ? ("eager" as const) : ("lazy" as const),
+    fetchPriority: priority ? ("high" as const) : undefined,
+  };
+  const { props: desktop } = getImageProps({ ...common, src: slide.src });
+  const {
+    props: { srcSet: mobileSrcSet },
+  } = getImageProps({ ...common, src: slide.mobileSrc ?? slide.src });
+  return (
+    <picture>
+      <source media={MOBILE} srcSet={mobileSrcSet} />
+      <img {...desktop} alt={slide.alt} className="object-cover" />
+    </picture>
+  );
+}
 
 export function HeroCarousel({ slides }: { slides: HeroSlide[] }) {
   // Starts on every (re)init — Embla re-inits plugins on resize and under StrictMode — and
@@ -58,7 +89,7 @@ export function HeroCarousel({ slides }: { slides: HeroSlide[] }) {
           {slides.map((slide, i) => (
             <CarouselItem key={slide.src} aria-label={`${i + 1} of ${slides.length}`} className="pl-0">
               <div className="relative h-[calc(100svh-1.75rem)] max-h-[960px] min-h-[520px] overflow-hidden bg-black">
-                <Image src={slide.src} alt={slide.alt} fill priority={i === 0} sizes="100vw" className="object-cover" />
+                <HeroImage slide={slide} priority={i === 0} />
                 <div className="absolute inset-0 bg-gradient-to-t from-black/75 via-black/15 to-black/10 sm:bg-gradient-to-r sm:from-black/65 sm:via-black/20 sm:to-transparent" />
                 <div className="absolute inset-0 mx-auto flex max-w-7xl flex-col items-start justify-end gap-3 px-4 pt-16 pb-20 text-white sm:justify-center sm:px-6 sm:pb-16">
                   <p className="text-[11px] font-semibold tracking-[0.25em] text-brand-cream uppercase">{slide.eyebrow}</p>

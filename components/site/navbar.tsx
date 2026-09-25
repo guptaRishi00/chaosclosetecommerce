@@ -21,7 +21,7 @@ export async function Navbar() {
 
   return (
     // Translucent + blurred: pages tuck content (hero, auth image) up under it with -mt-[calc(4rem+1px)] (h-16 + border).
-    <header className="sticky top-0 z-40 border-b border-white/30 bg-white/90 shadow-[0_1px_0_rgb(0_0_0/0.04)] supports-[backdrop-filter]:bg-white/55 supports-[backdrop-filter]:backdrop-blur-xl supports-[backdrop-filter]:backdrop-saturate-150">
+    <header className="sticky top-0 z-40 border-b border-white/30 bg-white/85 shadow-[0_1px_0_rgb(0_0_0/0.04)] supports-[backdrop-filter]:bg-white/45 supports-[backdrop-filter]:backdrop-blur-xl supports-[backdrop-filter]:backdrop-saturate-150">
       <nav aria-label="Main" className="flex h-16 w-full items-center justify-between gap-4 px-3 sm:px-5 lg:px-8">
         <Link href="/" className="shrink-0" aria-label="Chaos Closet home">
           <Image

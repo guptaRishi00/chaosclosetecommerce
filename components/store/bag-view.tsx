@@ -148,7 +148,7 @@ export function BagView({ loggedIn, shipTo }: Props) {
             const max = Math.max(1, Math.min(MAX_ORDER_QUANTITY, Number.isFinite(stock) ? stock : MAX_ORDER_QUANTITY));
             return (
               <li key={key(line.productId, line.size)} className="flex gap-3 py-5 sm:gap-5">
-                <Link href={href} className={cn("relative aspect-[3/4] w-24 shrink-0 overflow-hidden bg-[#efe6d2] sm:w-28", gone && "pointer-events-none opacity-50")}>
+                <Link href={href} className={cn("relative aspect-[3/4] w-20 shrink-0 overflow-hidden bg-[#efe6d2] min-[380px]:w-24 sm:w-28", gone && "pointer-events-none opacity-50")}>
                   {(quote?.image ?? line.image) && <Image src={(quote?.image ?? line.image)!} alt="" fill sizes="112px" className="object-cover" />}
                 </Link>
                 <div className="flex min-w-0 flex-1 flex-col gap-2">
@@ -173,7 +173,7 @@ export function BagView({ loggedIn, shipTo }: Props) {
                     </p>
                   )}
 
-                  <div className="mt-auto flex items-center justify-between gap-3">
+                  <div className="mt-auto flex flex-wrap items-center justify-between gap-x-3 gap-y-2">
                     {!gone && stock > 0 ? (
                       <div className="inline-flex h-8 items-center border border-black/25 sm:h-9" role="group" aria-label={`Quantity for ${line.name}, size ${line.size}`}>
                         <button

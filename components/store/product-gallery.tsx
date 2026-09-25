@@ -19,8 +19,9 @@ export function ProductGallery({ images, name }: { images: string[]; name: strin
 
   return (
     <div className="flex flex-col gap-3">
-      {/* Phones: horizontal swipe */}
-      <div className="-mx-4 flex snap-x snap-mandatory gap-2 overflow-x-auto px-4 [scrollbar-width:none] md:hidden" aria-label={`${name} photos`}>
+      {/* Phones: horizontal swipe, bleeding to the screen edge. The negative margin must equal the
+          page gutter (px-3 / sm:px-5 in app/product/[slug]/page.tsx) or the page scrolls sideways. */}
+      <div className="-mx-3 flex snap-x snap-mandatory gap-2 overflow-x-auto px-3 [scrollbar-width:none] sm:-mx-5 sm:px-5 md:hidden" aria-label={`${name} photos`}>
         {images.map((src, i) => (
           <div key={src} className="relative aspect-[4/5] w-[85%] shrink-0 snap-center overflow-hidden bg-brand-cream">
             <Image src={src} alt={`${name}, photo ${i + 1} of ${images.length}`} fill priority={i === 0} sizes="85vw" className="object-cover" />

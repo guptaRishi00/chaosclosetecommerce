@@ -72,8 +72,8 @@ export default async function DashboardPage() {
             <p className="truncate text-sm text-black/60">{user.email}</p>
           </div>
         </div>
-        <div className="flex items-center gap-6 sm:gap-8">
-          <dl className="flex gap-6 sm:gap-8">
+        <div className="flex flex-wrap items-center gap-x-5 gap-y-3 sm:gap-8">
+          <dl className="flex gap-5 sm:gap-8">
             {stats.map(([label, n]) => (
               <div key={label}>
                 <dt className="text-xs text-black/55">{label}</dt>
