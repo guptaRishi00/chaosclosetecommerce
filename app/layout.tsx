@@ -1,5 +1,7 @@
 import type { Metadata } from "next";
 import { Manrope, Unbounded } from "next/font/google";
+import { Suspense } from "react";
+import { NavProgress } from "@/components/site/nav-progress";
 import "./globals.css";
 
 // Unbounded: wide, Y2K display face that echoes the logo — headings only.
@@ -27,7 +29,13 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" className={`${unbounded.variable} ${manrope.variable}`}>
-      <body className="font-sans antialiased">{children}</body>
+      <body className="font-sans antialiased">
+        {/* Suspense: useSearchParams must not force static pages into client rendering */}
+        <Suspense fallback={null}>
+          <NavProgress />
+        </Suspense>
+        {children}
+      </body>
     </html>
   );
 }

@@ -142,6 +142,10 @@
   button:not(:disabled), [role="button"]:not(:disabled) {
     cursor: pointer;
   }
+  /* No double-tap-to-zoom wait on controls: taps fire immediately on every mobile browser. */
+  a, button, [role="button"], [role="tab"], label, summary, input, select, textarea {
+    touch-action: manipulation;
+  }
   html {
     @apply font-sans;
   }
@@ -156,6 +160,20 @@
 }
 @media (prefers-reduced-motion: reduce) {
   .animate-marquee { animation: none; }
+}
+
+/* Route-change progress bar (components/site/nav-progress.tsx): fast start, then creeps
+   toward 90% so a slow server still reads as "working", never as "done". */
+@keyframes nav-progress {
+  0% { transform: scaleX(0); }
+  10% { transform: scaleX(0.35); }
+  100% { transform: scaleX(0.9); }
+}
+@utility animate-nav-progress {
+  animation: nav-progress 8s cubic-bezier(0.1, 0.7, 0.2, 1) forwards;
+}
+@media (prefers-reduced-motion: reduce) {
+  .animate-nav-progress { animation: none; transform: scaleX(0.5); }
 }
 
 /* Admin console: Vercel-style dark theme. Applied with class="dark admin-theme" on the

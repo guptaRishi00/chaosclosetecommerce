@@ -1,3 +1,4 @@
+import { cache } from "react";
 import { getSession, type Session } from "@/lib/auth";
 import { connectDB } from "@/lib/db";
 import { UserModel } from "@/models/User";
@@ -7,7 +8,9 @@ import { UserModel } from "@/models/User";
  * The JWT's role claim only steers middleware redirects; this re-reads the user
  * from the database so a demoted or deleted admin loses access immediately.
  */
-export async function requireAdmin(): Promise<(Session & { name: string }) | null> {
+// cache(): the console layout and the page both call this during one render; one DB read.
+// (Outside a render, e.g. in Server Actions, cache() is a pass-through.)
+export const requireAdmin = cache(async (): Promise<(Session & { name: string }) | null> => {
   const session = await getSession();
   if (!session || session.role !== "admin") return null;
 
@@ -16,4 +19,4 @@ export async function requireAdmin(): Promise<(Session & { name: string }) | nul
   if (!user || user.role !== "admin") return null;
 
   return { ...session, name: user.name };
-}
+});
