@@ -20,6 +20,9 @@ const manrope = Manrope({
 export const metadata: Metadata = {
   title: { default: "Chaos Closet", template: "%s · Chaos Closet" },
   description: "Streetwear and fashion from Dibrugarh. Free shipping in Dibrugarh.",
+  icons: {
+    icon: "/favicon.png",
+  }
 };
 
 export default function RootLayout({

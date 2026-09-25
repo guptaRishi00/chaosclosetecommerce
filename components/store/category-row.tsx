@@ -7,7 +7,8 @@ import { ProductCard } from "@/components/store/product-card";
 export function CategoryRow({ category, priority = false }: { category: CategoryShowcase; priority?: boolean }) {
   return (
     <section aria-labelledby={`row-${category.value}`} className="w-full px-3 sm:px-5 lg:px-8">
-      <div className="mb-5 flex items-end justify-between gap-4">
+      {/* Phones: button top-aligned with the title (h-7 = the title's 28px line); sm+: aligned to the count line */}
+      <div className="mb-5 flex items-start justify-between gap-4 sm:items-end">
         <div>
           <h2 id={`row-${category.value}`} className="font-heading text-xl font-extrabold uppercase sm:text-3xl">
             {category.label}
@@ -18,10 +19,10 @@ export function CategoryRow({ category, priority = false }: { category: Category
         </div>
         <Link
           href={`/shop/${category.value}`}
-          className="group inline-flex h-8 shrink-0 items-center gap-1.5 border border-black px-3 text-[11px] sm:gap-2 sm:text-xs font-bold tracking-wider uppercase transition-colors hover:bg-black hover:text-white sm:h-11 sm:px-5"
+          className="group inline-flex h-7 shrink-0 items-center gap-1 border border-black px-2.5 text-[10px] font-bold tracking-wider uppercase transition-colors hover:bg-black hover:text-white sm:h-11 sm:gap-2 sm:px-5 sm:text-xs"
         >
           View all
-          <ArrowRight className="size-4 transition-transform group-hover:translate-x-0.5 motion-reduce:transition-none" aria-hidden />
+          <ArrowRight className="size-3 transition-transform sm:size-4 group-hover:translate-x-0.5 motion-reduce:transition-none" aria-hidden />
         </Link>
       </div>
       <div className="grid grid-cols-2 gap-x-2 gap-y-8 sm:gap-x-3 md:grid-cols-4 lg:gap-x-4">
