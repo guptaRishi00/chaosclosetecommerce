@@ -21,6 +21,7 @@ const FULFILLMENT_STYLE: Record<string, string> = {
   "not-delivered": "border-border text-muted-foreground",
   delivered: "border-success/40 bg-success/10 text-success",
   returned: "border-warning/40 bg-warning/10 text-warning",
+  cancelled: "border-danger/40 bg-danger/10 text-danger",
 };
 
 export function FulfillmentBadge({ value }: { value: string }) {

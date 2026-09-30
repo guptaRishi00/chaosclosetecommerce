@@ -7,12 +7,22 @@ import { imageFileSchema } from "@/lib/validations/uploads";
 const fields = {
   name: z.string().trim().min(2, "Name must be at least 2 characters").max(120),
   description: z.string().trim().min(10, "Write at least a short description").max(2000),
-  // Rupees in the form; stored as integer paise, which is what Razorpay expects.
+  // Rupees in the form; stored as integer paise.
   price: z.coerce
     .number({ error: "Enter a price" })
     .positive("Price must be greater than 0")
     .max(10_00_000, "Price must be at most ₹10,00,000")
     .transform((rupees) => Math.round(rupees * 100)),
+  // Optional cut price (MRP), rupees → paise. Empty = no discount shown. Must beat `price` (checkPrices).
+  compareAtPrice: z.preprocess(
+    (v) => (v === "" || v === null ? undefined : v),
+    z.coerce
+      .number({ error: "Enter a number" })
+      .positive("Cut price must be greater than 0")
+      .max(10_00_000, "Cut price must be at most ₹10,00,000")
+      .transform((rupees) => Math.round(rupees * 100))
+      .optional(),
+  ),
   category: z.enum(CATEGORY_VALUES, { error: "Choose a category" }),
   sizes: z
     .array(
@@ -29,6 +39,12 @@ const newImages = z
   .max(MAX_PRODUCT_IMAGES, `Up to ${MAX_PRODUCT_IMAGES} images`)
   .refine((files) => files.reduce((n, f) => n + f.size, 0) <= MAX_PRODUCT_UPLOAD_BYTES, "New images must total 25 MB or less");
 
+function checkPrices(p: { price: number; compareAtPrice?: number }, ctx: z.RefinementCtx) {
+  if (p.compareAtPrice !== undefined && p.compareAtPrice <= p.price) {
+    ctx.addIssue({ code: "custom", path: ["compareAtPrice"], message: "Cut price must be higher than the price" });
+  }
+}
+
 function checkSizes(p: { category: string; sizes: { size: string }[] }, ctx: z.RefinementCtx) {
   const allowed = sizesFor(p.category);
   const seen = new Set<string>();
@@ -41,7 +57,10 @@ function checkSizes(p: { category: string; sizes: { size: string }[] }, ctx: z.R
 
 export const productSchema = z
   .object({ ...fields, images: newImages.min(1, "Add at least one image") })
-  .superRefine(checkSizes);
+  .superRefine((p, ctx) => {
+    checkSizes(p, ctx);
+    checkPrices(p, ctx);
+  });
 
 /**
  * Edit: the image list mixes images already on Cloudinary (kept by publicId) with new uploads.
@@ -58,6 +77,7 @@ export const updateProductSchema = z
   })
   .superRefine((p, ctx) => {
     checkSizes(p, ctx);
+    checkPrices(p, ctx);
     const total = p.keepImages.length + p.images.length;
     if (total < 1) ctx.addIssue({ code: "custom", path: ["images"], message: "Keep or add at least one image" });
     if (total > MAX_PRODUCT_IMAGES) ctx.addIssue({ code: "custom", path: ["images"], message: `Up to ${MAX_PRODUCT_IMAGES} images` });
@@ -82,6 +102,7 @@ export function productFormToInput(formData: FormData) {
     name: formData.get("name"),
     description: formData.get("description"),
     price: formData.get("price"),
+    compareAtPrice: formData.get("compareAtPrice") ?? "",
     category: formData.get("category") || undefined,
     // Skip empty entries (untouched input) — see optionalImageSchema for why they vary by side.
     images: formData.getAll("images").filter((v) => v instanceof File && v.size > 0),

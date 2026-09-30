@@ -7,7 +7,7 @@ import { requireAdmin } from "@/lib/admin";
 import { connectDB } from "@/lib/db";
 import { PAGE_SIZE, pageInfo, parsePage } from "@/lib/pagination";
 import { GENDERS } from "@/lib/validations/auth";
-import { formatINR } from "@/lib/utils";
+import { formatDate, formatINR, formatTime } from "@/lib/utils";
 import { OrderModel } from "@/models/Order";
 import { UserModel } from "@/models/User";
 import { AccountDangerZone } from "@/components/admin/account-danger-zone";
@@ -19,8 +19,6 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 
 export const metadata: Metadata = { title: "Account" };
 
-const dateFmt = new Intl.DateTimeFormat("en-IN", { day: "numeric", month: "short", year: "numeric" });
-const dateTimeFmt = new Intl.DateTimeFormat("en-IN", { day: "numeric", month: "short", hour: "numeric", minute: "2-digit" });
 
 function Row({ label, children }: { label: string; children: React.ReactNode }) {
   return (
@@ -62,7 +60,7 @@ export default async function AdminAccountPage({
       $group: {
         _id: null,
         orders: { $sum: 1 },
-        net: { $sum: { $cond: [{ $ne: ["$fulfillment", "returned"] }, "$amount", 0] } },
+        net: { $sum: { $cond: [{ $in: ["$fulfillment", ["returned", "cancelled"]] }, 0, "$amount"] } },
         collected: { $sum: { $cond: [{ $eq: ["$status", "paid"] }, "$amount", 0] } },
         toCollect: { $sum: { $cond: [{ $eq: ["$fulfillment", "not-delivered"] }, "$amount", 0] } },
         returned: { $sum: { $cond: [{ $eq: ["$fulfillment", "returned"] }, 1, 0] } },
@@ -160,7 +158,9 @@ export default async function AdminAccountPage({
                           <Link href={`/admin/orders/${oid}`} className="font-mono text-sm after:absolute after:inset-0 hover:underline">
                             #{oid.slice(-6).toUpperCase()}
                           </Link>
-                          <div className="text-xs text-muted-foreground">{dateTimeFmt.format(o.createdAt)}</div>
+                          <time dateTime={o.createdAt.toISOString()} className="block text-xs text-muted-foreground">
+                            {formatDate(o.createdAt)}, {formatTime(o.createdAt)}
+                          </time>
                         </TableCell>
                         <TableCell>
                           <div className="flex items-center gap-3">
@@ -199,9 +199,10 @@ export default async function AdminAccountPage({
             <dl className="p-5">
               <Row label="Age">{user.age ?? "—"}</Row>
               <Row label="Gender">{gender ?? "—"}</Row>
+              <Row label="Mobile">{user.phone ? <a href={`tel:+91${user.phone}`} className="font-mono underline-offset-4 hover:underline">{user.phone}</a> : "—"}</Row>
               <Row label="District">{user.district || "—"}</Row>
               <Row label="Country">{user.country || "—"}</Row>
-              <Row label="Joined">{dateFmt.format(user.createdAt)}</Row>
+              <Row label="Joined">{formatDate(user.createdAt)}</Row>
               {user.address && (
                 <div className="pt-2">
                   <dt className="text-sm text-muted-foreground">Address</dt>

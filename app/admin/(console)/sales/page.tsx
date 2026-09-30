@@ -87,7 +87,7 @@ export default async function AdminSalesPage({ searchParams }: { searchParams: P
         <div className="flex flex-col gap-1">
           <h1 className="text-2xl font-semibold tracking-tight">Sales</h1>
           <p className="text-sm text-muted-foreground">
-            Cash-on-delivery sales placed through the website. Net sales exclude returned orders.
+            Cash-on-delivery sales placed through the website. Cancelled orders are left out; net sales also exclude returns.
           </p>
         </div>
         <nav aria-label="Date range" className="flex flex-wrap gap-1 rounded-lg border border-border bg-card p-1">

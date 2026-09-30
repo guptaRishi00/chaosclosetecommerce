@@ -5,7 +5,7 @@ import { notFound } from "next/navigation";
 import { ArrowLeft } from "lucide-react";
 import { connectDB } from "@/lib/db";
 import { returnReasonLabel, type FulfillmentStatus } from "@/lib/orders";
-import { formatINR } from "@/lib/utils";
+import { formatDate, formatINR, formatTime } from "@/lib/utils";
 import { OrderModel } from "@/models/Order";
 import { UserModel } from "@/models/User";
 import { FulfillmentForm } from "@/components/admin/fulfillment-form";
@@ -13,7 +13,7 @@ import { FulfillmentBadge, PaymentStatus } from "@/components/admin/order-badges
 
 export const metadata: Metadata = { title: "Order" };
 
-const dateFmt = new Intl.DateTimeFormat("en-IN", { dateStyle: "medium", timeStyle: "short" });
+const dateFmt = new Intl.DateTimeFormat("en-IN", { dateStyle: "medium", timeStyle: "short", timeZone: "Asia/Kolkata" });
 
 function Card({ title, children, className }: { title: string; children: React.ReactNode; className?: string }) {
   return (
@@ -57,7 +57,13 @@ export default async function AdminOrderPage({ params }: { params: Promise<{ id:
           <PaymentStatus status={order.status} />
           <FulfillmentBadge value={order.fulfillment} />
         </div>
-        <p className="text-sm text-muted-foreground">Placed {dateFmt.format(order.createdAt)}</p>
+        <p className="text-sm text-muted-foreground">
+          Ordered on{" "}
+          <time dateTime={order.createdAt.toISOString()} className="text-foreground">
+            {formatDate(order.createdAt)} at {formatTime(order.createdAt)}
+          </time>{" "}
+          IST
+        </p>
       </div>
 
       <div className="grid grid-cols-1 items-start gap-6 lg:grid-cols-3">
@@ -89,6 +95,14 @@ export default async function AdminOrderPage({ params }: { params: Promise<{ id:
                   alreadyRestocked: Boolean(ret?.restocked),
                   quantity: order.quantity,
                   size: order.size,
+                  cancelled:
+                    order.fulfillment === "cancelled"
+                      ? {
+                          at: order.cancelInfo ? dateFmt.format(order.cancelInfo.cancelledAt) : "Unknown",
+                          by: order.cancelInfo?.by === "customer" ? "customer" : "admin",
+                          restocked: Boolean(order.cancelInfo?.restocked),
+                        }
+                      : undefined,
                 }}
               />
           </Card>
@@ -126,13 +140,27 @@ export default async function AdminOrderPage({ params }: { params: Promise<{ id:
             </dl>
           </Card>
 
-          {/* Snapshot taken when the order was placed — later profile edits don't move a parcel. */}
+          {/* Snapshot taken at checkout: later profile edits don't move a parcel. Orders from before the
+              checkout form only have the profile's free-text address. */}
           <Card title="Deliver to">
             <dl>
+              {order.shipping?.name && <Row label="Name">{order.shipping.name}</Row>}
+              {order.shipping?.phone && (
+                <Row label="Mobile">
+                  <a href={`tel:+91${order.shipping.phone}`} className="font-mono underline-offset-4 hover:underline">
+                    {order.shipping.phone}
+                  </a>
+                </Row>
+              )}
+              {order.shipping?.house && <Row label="House / flat">{order.shipping.house}</Row>}
+              {order.shipping?.area && <Row label="Area">{order.shipping.area}</Row>}
+              {order.shipping?.landmark && <Row label="Landmark">{order.shipping.landmark}</Row>}
               <Row label="District">{order.shipping?.district || "—"}</Row>
               <Row label="Country">{order.shipping?.country || "India"}</Row>
             </dl>
-            {order.shipping?.address && <p className="mt-3 text-sm whitespace-pre-line text-muted-foreground">{order.shipping.address}</p>}
+            {!order.shipping?.area && order.shipping?.address && (
+              <p className="mt-3 text-sm whitespace-pre-line text-muted-foreground">{order.shipping.address}</p>
+            )}
           </Card>
 
           <Card title="Payment">

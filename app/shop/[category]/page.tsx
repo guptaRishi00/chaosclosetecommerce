@@ -25,10 +25,10 @@ export default async function ShopCategoryPage({ params, searchParams }: Params)
   return (
     <>
       <SiteHeader />
-      <main className="flex w-full flex-col gap-8 px-3 pt-10 pb-20 sm:px-5 md:pt-14 lg:px-8">
+      <main className="flex w-full flex-col gap-6 px-3 pt-10 pb-20 sm:gap-8 sm:px-5 md:pt-14 lg:px-8">
         <div className="flex flex-col gap-2">
-          <h1 className="font-heading text-3xl font-extrabold uppercase sm:text-5xl">{categoryLabel(category)}</h1>
-          <p className="text-sm text-black/60">
+          <h1 className="font-heading text-3xl leading-[0.95] font-extrabold uppercase sm:text-5xl lg:text-6xl">{categoryLabel(category)}</h1>
+          <p className="text-sm text-muted-foreground sm:text-base">
             {info.total === 0 ? "Nothing here yet." : `${info.total} piece${info.total === 1 ? "" : "s"}`}
           </p>
         </div>
@@ -42,8 +42,8 @@ export default async function ShopCategoryPage({ params, searchParams }: Params)
                   href={`/shop/${c.value}`}
                   aria-current={c.value === category ? "page" : undefined}
                   className={cn(
-                    "inline-flex h-8 items-center rounded-full border px-3 text-xs sm:h-9 sm:px-4 sm:text-sm font-medium whitespace-nowrap transition-colors",
-                    c.value === category ? "border-black bg-black text-white" : "border-black/20 bg-white hover:border-black",
+                    "inline-flex h-8 items-center rounded-full border px-3.5 text-xs font-semibold whitespace-nowrap transition-colors active:scale-[0.98] sm:h-10 sm:px-5 sm:text-sm",
+                    c.value === category ? "border-ink bg-ink text-white" : "border-ink/20 bg-white hover:border-ink",
                   )}
                 >
                   {c.label}
@@ -54,11 +54,11 @@ export default async function ShopCategoryPage({ params, searchParams }: Params)
         </nav>
 
         {products.length === 0 ? (
-          <div className="rounded-lg border border-dashed border-black/20 bg-white/60 px-6 py-20 text-center">
-            <p className="font-semibold">New {categoryLabel(category).toLowerCase()} are on the way.</p>
-            <p className="mt-1 text-sm text-black/60">
+          <div className="bg-brand-cream px-6 py-20 text-center">
+            <p className="text-lg font-semibold">New {categoryLabel(category).toLowerCase()} are on the way.</p>
+            <p className="mt-1 text-sm text-ink/70">
               Meanwhile, browse{" "}
-              <Link href="/" className="font-semibold text-brand-red underline-offset-4 hover:underline">
+              <Link href="/" className="font-semibold underline underline-offset-4 hover:text-brand-red">
                 everything else
               </Link>
               .

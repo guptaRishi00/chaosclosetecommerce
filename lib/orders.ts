@@ -9,6 +9,8 @@ export const FULFILLMENT_STATUSES = [
   { value: "not-delivered", label: "Not delivered" },
   { value: "delivered", label: "Delivered" },
   { value: "returned", label: "Returned" },
+  // Called off before delivery (by the customer or the store). Terminal: units go back to stock once.
+  { value: "cancelled", label: "Cancelled" },
 ] as const;
 export type FulfillmentStatus = (typeof FULFILLMENT_STATUSES)[number]["value"];
 export const FULFILLMENT_VALUES = FULFILLMENT_STATUSES.map((s) => s.value) as [FulfillmentStatus, ...FulfillmentStatus[]];

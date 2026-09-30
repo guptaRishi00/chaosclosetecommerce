@@ -10,6 +10,7 @@ export type ProductCardData = {
   slug: string;
   name: string;
   price: number; // paise
+  compareAtPrice: number | null; // paise; cut price shown struck through (null = no discount)
   images: string[]; // first = cover, second = hover image
   sizes: { size: string; stock: number }[];
 };
@@ -18,7 +19,7 @@ export function isCategory(value: string): value is CategoryValue {
   return (CATEGORY_VALUES as string[]).includes(value);
 }
 
-type RawCard = { _id?: unknown; id?: unknown; slug: string; name: string; price: number; images?: { url: string }[]; sizes?: { size: string; stock: number }[] };
+type RawCard = { _id?: unknown; id?: unknown; slug: string; name: string; price: number; compareAtPrice?: number | null; images?: { url: string }[]; sizes?: { size: string; stock: number }[] };
 
 function toCard(p: RawCard): ProductCardData {
   return {
@@ -26,12 +27,13 @@ function toCard(p: RawCard): ProductCardData {
     slug: p.slug,
     name: p.name,
     price: p.price,
+    compareAtPrice: p.compareAtPrice && p.compareAtPrice > p.price ? p.compareAtPrice : null,
     images: (p.images ?? []).slice(0, 2).map((i) => i.url),
     sizes: (p.sizes ?? []).map((s) => ({ size: s.size, stock: s.stock })),
   };
 }
 
-const CARD_FIELDS = { slug: 1, name: 1, price: 1, images: { $slice: 2 }, sizes: 1 } as const;
+const CARD_FIELDS = { slug: 1, name: 1, price: 1, compareAtPrice: 1, images: { $slice: 2 }, sizes: 1 } as const;
 
 export type CategoryShowcase = {
   value: CategoryValue;
@@ -49,7 +51,7 @@ export async function getCategoryShowcase(perCategory = 4): Promise<CategoryShow
       $group: {
         _id: "$category",
         count: { $sum: 1 },
-        items: { $firstN: { n: perCategory, input: { id: "$_id", slug: "$slug", name: "$name", price: "$price", images: { $slice: ["$images", 2] }, sizes: "$sizes" } } },
+        items: { $firstN: { n: perCategory, input: { id: "$_id", slug: "$slug", name: "$name", price: "$price", compareAtPrice: "$compareAtPrice", images: { $slice: ["$images", 2] }, sizes: "$sizes" } } },
       },
     },
   ]);

@@ -7,6 +7,7 @@ import { OrderModel } from "@/models/Order";
 // Server-only sales analytics for /admin/sales. Money is integer paise throughout.
 // Definitions (cash on delivery):
 //   gross     = every order placed in the period
+//   (cancelled orders are excluded from everything below)
 //   net       = gross minus returned orders          ← headline "sales"
 //   collected = delivered orders (cash received)
 //   toCollect = open orders not yet delivered or returned
@@ -53,7 +54,8 @@ export async function getSalesReport(range: RangeValue): Promise<SalesReport> {
   const days = RANGES.find((r) => r.value === range)!.days;
   const start = periodStart(days);
   const bucket: SalesReport["bucket"] = days !== null && days <= 90 ? "day" : "month";
-  const match = start ? { createdAt: { $gte: start } } : {};
+  // Cancelled orders were never delivered or paid: leave them out of every figure.
+  const match = { fulfillment: { $ne: "cancelled" }, ...(start ? { createdAt: { $gte: start } } : {}) };
 
   const [facets] = await OrderModel.aggregate([
     { $match: match },
@@ -109,7 +111,7 @@ export async function getSalesReport(range: RangeValue): Promise<SalesReport> {
     const prevStart = new Date(start);
     prevStart.setUTCDate(prevStart.getUTCDate() - days);
     const [p] = await OrderModel.aggregate([
-      { $match: { createdAt: { $gte: prevStart, $lt: start } } },
+      { $match: { fulfillment: { $ne: "cancelled" }, createdAt: { $gte: prevStart, $lt: start } } },
       { $group: { _id: null, orders: { $sum: 1 }, net: { $sum: netAmount } } },
     ]);
     previous = { orders: p?.orders ?? 0, net: p?.net ?? 0 };

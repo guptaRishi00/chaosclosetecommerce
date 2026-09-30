@@ -32,3 +32,27 @@ export const placeOrderSchema = z.object({
   size: z.string().min(1, "Choose a size").max(10),
   quantity: z.coerce.number().int().min(1).max(MAX_ORDER_QUANTITY).default(1),
 });
+
+/** Indian mobile number. Accepts +91 / 91 / 0 prefixes, spaces and dashes; stored as the bare 10 digits. */
+export const phoneSchema = z
+  .string()
+  .trim()
+  .transform((v) => v.replace(/[\s-]/g, "").replace(/^(\+?91|0)(?=\d{10}$)/, ""))
+  .pipe(z.string().regex(/^[6-9]\d{9}$/, "Enter a 10-digit mobile number"));
+
+/** Where to deliver an order. Collected at every checkout (Buy now and bag), validated again on the server. */
+export const deliverySchema = z.object({
+  house: z.string().trim().min(1, "Enter your house or flat number").max(80),
+  area: z.string().trim().min(3, "Enter your street, area or locality").max(160),
+  landmark: z
+    .string()
+    .trim()
+    .max(120, "Keep the landmark under 120 characters")
+    .optional()
+    .transform((v) => v || undefined),
+  district: z.string().trim().min(2, "Enter your district").max(60),
+  phone: phoneSchema,
+});
+
+export type DeliveryInput = z.input<typeof deliverySchema>;
+export type Delivery = z.output<typeof deliverySchema>;

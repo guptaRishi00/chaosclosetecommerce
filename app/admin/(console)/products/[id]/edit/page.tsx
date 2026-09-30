@@ -24,6 +24,7 @@ export default async function EditProductPage({ params }: { params: Promise<{ id
     name: doc.name,
     description: doc.description ?? "",
     price: (doc.price / 100).toString(),
+    compareAtPrice: doc.compareAtPrice ? (doc.compareAtPrice / 100).toString() : "",
     category: doc.category,
     images: doc.images.map((img) => ({ publicId: img.publicId, url: img.url })),
     sizes: doc.sizes.map((s) => ({ size: s.size, stock: s.stock })),

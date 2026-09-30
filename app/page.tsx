@@ -8,6 +8,9 @@ import { PromiseStrip } from "@/components/store/promise-strip";
 // Desktop images are landscape; `mobileSrc` is a portrait (1080x1920) version for phones.
 // public/hero/*-mobile.jpg are subject-aware crops of the desktop shots; replace them with
 // dedicated mobile photography whenever it exists. Slide 4 is still an Unsplash placeholder.
+// One label per intent: the hero sells (signing up lives in the navbar, the newsletter in the footer).
+const SHOP_CTA = { label: "Shop now", href: "#shop" };
+
 const slides: HeroSlide[] = [
   {
     src: "/2.jpg",
@@ -15,7 +18,7 @@ const slides: HeroSlide[] = [
     alt: "Models in wide-leg trousers and a flared dress on a concrete staircase",
     eyebrow: "New season",
     title: "Dress loud. Live louder.",
-    cta: { label: "Join the closet", href: "/register" },
+    cta: SHOP_CTA,
   },
   {
     src: "/3.jpg",
@@ -23,7 +26,7 @@ const slides: HeroSlide[] = [
     alt: "Model in an oversized red outfit against a clear blue sky",
     eyebrow: "Streetwear edit",
     title: "Comfort that talks back",
-    cta: { label: "Sign up for drops", href: "/register" },
+    cta: SHOP_CTA,
   },
   {
     src: "/4.jpg",
@@ -31,7 +34,7 @@ const slides: HeroSlide[] = [
     alt: "Group of friends in streetwear posing in an underground car park",
     eyebrow: "Summer accessories",
     title: "Shades of chaos",
-    cta: { label: "Create account", href: "/register" },
+    cta: SHOP_CTA,
   },
   {
     src: "https://images.unsplash.com/photo-1445205170230-053b83016050?w=2000&q=80",
@@ -39,7 +42,7 @@ const slides: HeroSlide[] = [
     alt: "Rail of neutral-toned jackets and shirts",
     eyebrow: "Free shipping in Dibrugarh",
     title: "Your closet, delivered",
-    cta: { label: "Get started", href: "/register" },
+    cta: SHOP_CTA,
   },
 ];
 
@@ -54,13 +57,13 @@ export default async function HomePage() {
         <HeroCarousel slides={slides} />
         <PromiseStrip />
         {stocked.length > 0 ? (
-          <div className="flex flex-col gap-14 py-12 md:gap-20 md:py-16">
+          <div id="shop" className="flex scroll-mt-20 flex-col gap-12 py-12 md:gap-16 md:py-16">
             {stocked.map((c, i) => (
               <CategoryRow key={c.value} category={c} priority={i === 0} />
             ))}
           </div>
         ) : (
-          <p className="mx-auto max-w-7xl px-4 py-24 text-center text-black/60 sm:px-6">New drops are on the way. Check back soon.</p>
+          <p id="shop" className="scroll-mt-20 px-3 py-24 text-center text-muted-foreground sm:px-5 lg:px-8">New drops are on the way. Check back soon.</p>
         )}
       </main>
       <SiteFooter />

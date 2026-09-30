@@ -4,13 +4,11 @@ import { SiteHeader } from "@/components/site/site-header";
 
 export default function AuthLayout({ children }: { children: React.ReactNode }) {
   return (
-    // White page: re-point the cream theme tokens that shadcn controls read (outline button,
-    // avatar, separators) to neutrals, scoped to the auth pages only.
-    <div className="min-h-dvh bg-white [--accent:#f4f4f5] [--background:#ffffff] [--muted:#f4f4f5] [--muted-foreground:#52525b]">
+    <div className="min-h-dvh bg-background">
       <SiteHeader />
       {/* -mt tucks both columns under the translucent sticky navbar (h-16 + 1px border) */}
       <div className="-mt-[calc(4rem+1px)] grid min-h-dvh lg:grid-cols-[minmax(0,5fr)_minmax(0,6fr)]">
-        {/* Editorial panel — desktop only, edge to edge, pinned while the form scrolls */}
+        {/* Editorial panel: desktop only, edge to edge, pinned while the form scrolls */}
         <aside className="relative hidden lg:block">
           <div className="sticky top-0 h-dvh overflow-hidden bg-black">
             <Image

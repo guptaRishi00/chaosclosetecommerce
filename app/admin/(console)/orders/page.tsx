@@ -5,7 +5,7 @@ import { Receipt } from "lucide-react";
 import { FULFILLMENT_STATUSES } from "@/lib/orders";
 import { connectDB } from "@/lib/db";
 import { PAGE_SIZE, pageInfo, parsePage } from "@/lib/pagination";
-import { cn, formatINR } from "@/lib/utils";
+import { cn, formatDate, formatINR, formatTime } from "@/lib/utils";
 import { OrderModel } from "@/models/Order";
 import "@/models/User"; // registers the model for populate("user")
 import { ListPagination } from "@/components/admin/list-pagination";
@@ -15,7 +15,6 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 
 export const metadata: Metadata = { title: "Orders" };
 
-const dateFmt = new Intl.DateTimeFormat("en-IN", { day: "numeric", month: "short", hour: "numeric", minute: "2-digit" });
 
 const FILTERS = [{ value: "all", label: "All" }, ...FULFILLMENT_STATUSES] as const;
 type FilterValue = (typeof FILTERS)[number]["value"];
@@ -105,6 +104,7 @@ export default async function AdminOrdersPage({ searchParams }: { searchParams: 
             <TableHeader>
               <TableRow className="hover:bg-transparent">
                 <TableHead className="pl-4 text-xs font-normal text-muted-foreground">Order</TableHead>
+                <TableHead className="text-xs font-normal text-muted-foreground">Ordered</TableHead>
                 <TableHead className="text-xs font-normal text-muted-foreground">Customer</TableHead>
                 <TableHead className="text-xs font-normal text-muted-foreground">Item</TableHead>
                 <TableHead className="text-right text-xs font-normal text-muted-foreground">Amount</TableHead>
@@ -123,7 +123,12 @@ export default async function AdminOrdersPage({ searchParams }: { searchParams: 
                       <Link href={`/admin/orders/${id}`} className="font-mono text-sm after:absolute after:inset-0 hover:underline">
                         #{id.slice(-6).toUpperCase()}
                       </Link>
-                      <div className="text-xs text-muted-foreground">{dateFmt.format(o.createdAt)}</div>
+                    </TableCell>
+                    <TableCell className="whitespace-nowrap">
+                      <time dateTime={o.createdAt.toISOString()} className="flex flex-col">
+                        <span className="text-sm">{formatDate(o.createdAt)}</span>
+                        <span className="font-mono text-xs text-muted-foreground">{formatTime(o.createdAt)}</span>
+                      </time>
                     </TableCell>
                     <TableCell>
                       <div className="flex min-w-0 flex-col">

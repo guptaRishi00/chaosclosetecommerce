@@ -1,9 +1,8 @@
 import Image from "next/image";
 import Link from "next/link";
-import { cn, formatINR } from "@/lib/utils";
+import { cn, formatDate, formatINR, formatTime } from "@/lib/utils";
 import { FulfillmentBadge, PaymentStatus } from "@/components/admin/order-badges";
 
-const dateFmt = new Intl.DateTimeFormat("en-IN", { day: "numeric", month: "short", hour: "numeric", minute: "2-digit" });
 
 export type OrderCardData = {
   id: string;
@@ -52,7 +51,9 @@ export function OrderCards({ orders, className }: { orders: OrderCardData[]; cla
             <div className="flex flex-wrap items-center gap-x-3 gap-y-1.5 pt-0.5">
               <FulfillmentBadge value={o.fulfillment} />
               <PaymentStatus status={o.status} />
-              <span className="ml-auto text-xs whitespace-nowrap text-muted-foreground">{dateFmt.format(o.createdAt)}</span>
+              <time dateTime={o.createdAt.toISOString()} className="ml-auto text-xs whitespace-nowrap text-muted-foreground">
+                {formatDate(o.createdAt)}, {formatTime(o.createdAt)}
+              </time>
             </div>
           </div>
         </li>

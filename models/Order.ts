@@ -12,8 +12,19 @@ const returnSchema = new Schema(
   { _id: false },
 );
 
+const cancelSchema = new Schema(
+  {
+    cancelledAt: { type: Date, required: true },
+    by: { type: String, enum: ["customer", "admin"], required: true },
+    restocked: { type: Boolean, default: false }, // units added back to product stock
+  },
+  { _id: false },
+);
+
+// Orders placed since the checkout form collect the structured fields (phone, house, area,
+// landmark, district); older orders only have the profile's free-text `address`.
 const shippingSchema = new Schema(
-  { name: String, address: String, district: String, country: String },
+  { name: String, phone: String, house: String, area: String, landmark: String, address: String, district: String, country: String },
   { _id: false },
 );
 
@@ -41,6 +52,7 @@ const orderSchema = new Schema(
     fulfillment: { type: String, enum: FULFILLMENT_VALUES, default: "not-delivered", index: true },
     deliveredAt: { type: Date },
     returnInfo: { type: returnSchema, required: false },
+    cancelInfo: { type: cancelSchema, required: false },
   },
   { timestamps: true },
 );

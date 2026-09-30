@@ -14,7 +14,7 @@ export default async function RegisterPage({ searchParams }: { searchParams: Pro
   return (
     <div className="flex flex-col gap-6">
       <div className="flex flex-col gap-1.5">
-        <h1 className="font-heading text-2xl font-extrabold uppercase">Join the closet</h1>
+        <h1 className="text-3xl font-semibold tracking-tight">Join the closet</h1>
         <p className="text-sm text-muted-foreground">Create your account for early drops and faster checkout.</p>
       </div>
       <RegisterForm next={next} />
@@ -22,7 +22,7 @@ export default async function RegisterPage({ searchParams }: { searchParams: Pro
         Already have an account?{" "}
         <Link
           href={next ? `/login?next=${encodeURIComponent(next)}` : "/login"}
-          className="font-semibold text-brand-red underline-offset-4 hover:underline"
+          className="font-semibold text-ink underline underline-offset-4 hover:text-brand-red"
         >
           Log in
         </Link>

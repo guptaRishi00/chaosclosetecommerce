@@ -4,7 +4,7 @@ import { CATEGORIES } from "@/lib/catalog";
 import { NewsletterForm } from "@/components/site/newsletter-form";
 
 /**
- * Pre-footer newsletter band + footer (layout after Bonkers Corner / Urban Monkey).
+ * Pre-footer newsletter band (the one red campaign block) + ink footer.
  * Only links to pages that exist; no invented phone numbers, addresses or social handles.
  */
 export function SiteFooter() {
@@ -23,7 +23,7 @@ export function SiteFooter() {
         </div>
       </section>
 
-      <footer className="bg-black text-brand-cream">
+      <footer className="bg-ink text-brand-cream">
         <div className="grid w-full grid-cols-2 gap-x-6 gap-y-10 px-3 py-14 sm:px-5 md:grid-cols-4 lg:px-8">
           <div className="col-span-2 flex flex-col gap-4">
             <Link href="/" aria-label="Chaos Closet home" className="w-fit">
@@ -33,7 +33,7 @@ export function SiteFooter() {
           </div>
 
           <nav aria-labelledby="footer-shop" className="flex flex-col gap-3">
-            <h2 id="footer-shop" className="text-xs font-bold tracking-widest text-white uppercase">
+            <h2 id="footer-shop" className="text-sm font-semibold text-white">
               Shop
             </h2>
             <ul className="flex flex-col gap-2 text-sm">
@@ -48,7 +48,7 @@ export function SiteFooter() {
           </nav>
 
           <nav aria-labelledby="footer-help" className="flex flex-col gap-3">
-            <h2 id="footer-help" className="text-xs font-bold tracking-widest text-white uppercase">
+            <h2 id="footer-help" className="text-sm font-semibold text-white">
               Your closet
             </h2>
             <ul className="flex flex-col gap-2 text-sm">

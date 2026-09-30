@@ -5,12 +5,12 @@ import { requireAdmin } from "@/lib/admin";
 import { deleteImage, uploadImage, UploadError, type UploadedImage } from "@/lib/cloudinary";
 import { connectDB } from "@/lib/db";
 import { rateLimit } from "@/lib/rate-limit";
-import { restockReturnedOrder } from "@/lib/stock";
+import { cancelOrderWithStock, restockReturnedOrder } from "@/lib/stock";
 import { fulfillmentFormToInput, fulfillmentSchema } from "@/lib/validations/orders";
 import { fieldErrors, type ActionState } from "@/lib/validations/utils";
 import { OrderModel } from "@/models/Order";
 
-/** Admin: set delivered / not delivered / returned (+ reason, note, optional photo, optional restock). */
+/** Admin: set delivered / not delivered / returned (+ reason, note, optional photo, optional restock) or cancel. */
 export async function updateFulfillment(_prev: ActionState, formData: FormData): Promise<ActionState> {
   const admin = await requireAdmin();
   if (!admin) return { status: "error", message: "You don't have permission to do that." };
@@ -26,6 +26,22 @@ export async function updateFulfillment(_prev: ActionState, formData: FormData):
   await connectDB();
   const order = await OrderModel.findById(id).lean();
   if (!order) return { status: "error", message: "This order no longer exists." };
+  if (order.fulfillment === "cancelled") return { status: "error", message: "This order was cancelled and can't be changed." };
+
+  if (fulfillment === "cancelled") {
+    if (order.fulfillment !== "not-delivered") {
+      return { status: "error", message: "Only orders that haven't been delivered can be cancelled." };
+    }
+    // Same path as a customer cancel: status flip + restock in one transaction, at most once.
+    const res = await cancelOrderWithStock(id, "admin");
+    if (!res.ok) return { status: "error", message: "This order changed while you were editing it. Reload and try again." };
+    revalidatePath("/admin/orders");
+    revalidatePath(`/admin/orders/${id}`);
+    revalidatePath("/admin");
+    revalidatePath("/dashboard");
+    const note = res.restocked ? ` ${order.quantity} × ${order.size} added back to stock.` : "";
+    return { status: "success", message: `Order cancelled.${note}` };
+  }
 
   // Upload outside any DB transaction (network I/O), compensate if the write fails.
   let uploaded: UploadedImage | undefined;
@@ -58,7 +74,12 @@ export async function updateFulfillment(_prev: ActionState, formData: FormData):
   // Leaving "returned" keeps returnInfo as history; the status is what the UI trusts.
 
   try {
-    await OrderModel.updateOne({ _id: id }, { $set: set });
+    // Guarded: the customer may have cancelled since we read the order; cancelled is terminal.
+    const res = await OrderModel.updateOne({ _id: id, fulfillment: { $ne: "cancelled" } }, { $set: set });
+    if (res.matchedCount === 0) {
+      if (uploaded) await deleteImage(uploaded.publicId).catch(() => {});
+      return { status: "error", message: "The customer cancelled this order just now. Reload to see it." };
+    }
   } catch (error) {
     if (uploaded) await deleteImage(uploaded.publicId).catch(() => {});
     throw error;

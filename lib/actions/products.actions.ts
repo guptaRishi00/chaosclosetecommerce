@@ -79,7 +79,7 @@ export async function updateProduct(_prev: ActionState, formData: FormData): Pro
 
   const parsed = updateProductSchema.safeParse(productUpdateFormToInput(formData));
   if (!parsed.success) return { status: "error", fieldErrors: fieldErrors(parsed.error) };
-  const { id, keepImages, images: newFiles, imageOrder, ...fields } = parsed.data;
+  const { id, keepImages, images: newFiles, imageOrder, compareAtPrice, ...fields } = parsed.data;
 
   await connectDB();
   const product = await ProductModel.findById(id).lean();
@@ -112,7 +112,10 @@ export async function updateProduct(_prev: ActionState, formData: FormData): Pro
   try {
     const updated = await ProductModel.findByIdAndUpdate(
       id,
-      { $set: { ...fields, images: finalImages } },
+      // An emptied cut-price field removes the discount rather than leaving the old one behind.
+      compareAtPrice === undefined
+        ? { $set: { ...fields, images: finalImages }, $unset: { compareAtPrice: 1 } }
+        : { $set: { ...fields, compareAtPrice, images: finalImages } },
       { returnDocument: "after", runValidators: true },
     ).lean();
     if (!updated) {

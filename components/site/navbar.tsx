@@ -1,13 +1,14 @@
 import Image from "next/image";
 import Link from "next/link";
 import { Heart, ShoppingBag, UserRound } from "lucide-react";
+import { CATEGORIES } from "@/lib/catalog";
 import { getCurrentUser } from "@/lib/current-user";
 import { Button } from "@/components/ui/button";
 import { NavCount } from "@/components/site/nav-counts";
 
 function IconLink({ href, label, children }: { href: string; label: string; children: React.ReactNode }) {
   return (
-    <Button asChild variant="ghost" size="icon-lg" className="relative size-9 rounded-full sm:size-10 hover:bg-brand-cream">
+    <Button asChild variant="ghost" size="icon-lg" className="relative size-9 rounded-full sm:size-10 hover:bg-brand-cream active:scale-95">
       <Link href={href} aria-label={label} title={label}>
         {children}
       </Link>
@@ -35,6 +36,17 @@ export async function Navbar() {
           />
         </Link>
 
+        {/* Category links only where all six fit on one line; smaller screens reach them from the home rows and footer. */}
+        <ul className="hidden items-center gap-6 text-[15px] font-medium xl:flex">
+          {CATEGORIES.map((c) => (
+            <li key={c.value}>
+              <Link href={`/shop/${c.value}`} className="underline-offset-[6px] decoration-2 hover:underline">
+                {c.label}
+              </Link>
+            </li>
+          ))}
+        </ul>
+
         <div className="flex items-center gap-1 sm:gap-2">
           <IconLink href="/wishlist" label="Wishlist">
             <Heart className="size-5" strokeWidth={1.75} />
@@ -45,7 +57,7 @@ export async function Navbar() {
             <NavCount kind="bag" />
           </IconLink>
 
-          <span aria-hidden className="mx-1 hidden h-6 w-px bg-black/15 sm:block" />
+          <span aria-hidden className="mx-1 hidden h-6 w-px bg-ink/15 sm:block" />
 
           {session ? (
             <IconLink href="/dashboard" label="Your account">
@@ -59,10 +71,10 @@ export async function Navbar() {
                   <UserRound className="size-5" strokeWidth={1.75} />
                 </IconLink>
               </span>
-              <Button asChild variant="ghost" size="lg" className="hidden px-4 font-semibold hover:bg-brand-cream sm:inline-flex">
+              <Button asChild variant="ghost" size="lg" className="hidden rounded-full px-4 font-semibold hover:bg-brand-cream sm:inline-flex">
                 <Link href="/login">Log in</Link>
               </Button>
-              <Button asChild size="lg" className="hidden bg-black px-4 font-semibold text-white hover:bg-brand-red sm:inline-flex">
+              <Button asChild size="lg" className="hidden rounded-full px-5 font-semibold hover:bg-brand-red sm:inline-flex">
                 <Link href="/register">Sign up</Link>
               </Button>
             </>

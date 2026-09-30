@@ -6,6 +6,7 @@ import { updateFulfillment } from "@/lib/actions/orders.actions";
 import { FULFILLMENT_STATUSES, RETURN_REASONS, type FulfillmentStatus } from "@/lib/orders";
 import { fulfillmentFormToInput, fulfillmentSchema } from "@/lib/validations/orders";
 import { IMAGE_TYPES } from "@/lib/validations/uploads";
+import { FulfillmentBadge } from "@/components/admin/order-badges";
 import { useValidatedAction } from "@/components/forms/use-validated-action";
 import { Checkbox } from "@/components/ui/checkbox";
 import {
@@ -28,6 +29,7 @@ const STATUS_HINT: Record<FulfillmentStatus, string> = {
   "not-delivered": "Placed, not yet with the customer (cash still to collect).",
   delivered: "Received and cash collected.",
   returned: "Sent back by the customer.",
+  cancelled: "Called off before delivery. Units go back in stock. Can't be undone.",
 };
 
 export type FulfillmentInitial = {
@@ -41,6 +43,8 @@ export type FulfillmentInitial = {
   alreadyRestocked: boolean;
   quantity: number;
   size: string;
+  /** Set once the order is cancelled (terminal): the form turns into a read-only summary. */
+  cancelled?: { at: string; by: "customer" | "admin"; restocked: boolean };
 };
 
 export function FulfillmentForm({ initial }: { initial: FulfillmentInitial }) {
@@ -53,6 +57,34 @@ export function FulfillmentForm({ initial }: { initial: FulfillmentInitial }) {
   const reasonField = field("returnReason");
   const descField = field("returnDescription");
   const imageField = field("returnImage");
+
+  // Rendered here rather than by the page, so the "Order cancelled" message from the action
+  // (held in this component's state) stays visible after the page refreshes.
+  if (initial.cancelled) {
+    const c = initial.cancelled;
+    return (
+      <div className="flex flex-col gap-4">
+        {message && state.status === "success" && (
+          <p role="status" className="rounded-md border border-success/30 bg-success/10 px-3 py-2 text-sm text-success">
+            {message}
+          </p>
+        )}
+        <dl className="text-sm">
+          {[
+            ["Status", <FulfillmentBadge key="b" value="cancelled" />],
+            ["Cancelled", c.at],
+            ["By", c.by === "customer" ? "Customer" : "Store"],
+            ["Back in stock", c.restocked ? `Yes, ${initial.quantity} × ${initial.size}` : "No (product or size was removed)"],
+          ].map(([label, value]) => (
+            <div key={label as string} className="flex items-start justify-between gap-4 py-1.5">
+              <dt className="text-muted-foreground">{label}</dt>
+              <dd className="min-w-0 text-right break-words">{value}</dd>
+            </div>
+          ))}
+        </dl>
+      </div>
+    );
+  }
 
   return (
     <form ref={formRef} action={formAction} onSubmit={onSubmit} noValidate>
@@ -77,7 +109,7 @@ export function FulfillmentForm({ initial }: { initial: FulfillmentInitial }) {
             name="fulfillment"
             value={status}
             onValueChange={(v) => setStatus(v as FulfillmentStatus)}
-            className="grid gap-2 sm:grid-cols-3"
+            className="grid gap-2 sm:grid-cols-2"
           >
             {FULFILLMENT_STATUSES.map((s) => (
               <FieldLabel key={s.value} htmlFor={`fulfillment-${s.value}`}>

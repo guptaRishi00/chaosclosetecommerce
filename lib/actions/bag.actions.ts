@@ -6,7 +6,8 @@ import { connectDB } from "@/lib/db";
 import { rateLimit } from "@/lib/rate-limit";
 import { placeOrdersWithStock } from "@/lib/stock";
 import type { ProductCardData } from "@/lib/storefront";
-import { bagSchema, slugListSchema } from "@/lib/validations/checkout";
+import { bagSchema, deliverySchema, slugListSchema, type DeliveryInput } from "@/lib/validations/checkout";
+import { fieldErrors, type FieldErrors } from "@/lib/validations/utils";
 import { ProductModel } from "@/models/Product";
 
 export type QuotedLine = {
@@ -46,10 +47,12 @@ export async function quoteBag(input: BagInput): Promise<{ ok: true; lines: Quot
   };
 }
 
-export type BagCheckoutResult = { ok: true; orders: number } | { ok: false; message: string; productId?: string; size?: string };
+export type BagCheckoutResult =
+  | { ok: true; orders: number }
+  | { ok: false; message: string; productId?: string; size?: string; fieldErrors?: FieldErrors };
 
 /** Cash-on-delivery checkout of the whole bag: all lines or nothing (lib/stock.ts transaction). */
-export async function placeBagOrder(input: BagInput): Promise<BagCheckoutResult> {
+export async function placeBagOrder(input: BagInput, deliveryInput: DeliveryInput): Promise<BagCheckoutResult> {
   const user = await getCurrentUser(); // DB-checked
   if (!user) return { ok: false, message: "Please log in to place your order" };
   if (!rateLimit(`place-order:${user.userId}`, 5, 60_000).ok) {
@@ -59,6 +62,8 @@ export async function placeBagOrder(input: BagInput): Promise<BagCheckoutResult>
   const parsed = bagSchema.safeParse(input);
   if (!parsed.success) return { ok: false, message: parsed.error.issues[0]?.message ?? "Invalid bag" };
   const lines = parsed.data;
+  const delivery = deliverySchema.safeParse(deliveryInput);
+  if (!delivery.success) return { ok: false, message: "Check your delivery details", fieldErrors: fieldErrors(delivery.error) };
 
   await connectDB();
   const products = await ProductModel.find({ _id: { $in: lines.map((l) => l.productId) } }).lean();
@@ -69,7 +74,8 @@ export async function placeBagOrder(input: BagInput): Promise<BagCheckoutResult>
     if (!p.sizes.some((s) => s.size === l.size)) return { ok: false, message: `${p.name} no longer comes in ${l.size}`, productId: l.productId, size: l.size };
   }
 
-  const shipping = { name: user.name, address: user.address ?? undefined, district: user.district ?? undefined, country: user.country ?? "India" };
+  // Snapshot where to deliver, as entered at checkout.
+  const shipping = { name: user.name, ...delivery.data, country: user.country ?? "India" };
   const result = await placeOrdersWithStock(
     lines.map((l) => {
       const p = byId.get(l.productId)!;
@@ -103,10 +109,10 @@ export async function getProductsBySlugs(slugs: string[]): Promise<ProductCardDa
   const parsed = slugListSchema.safeParse(slugs);
   if (!parsed.success || parsed.data.length === 0) return [];
   await connectDB();
-  const products = await ProductModel.find({ slug: { $in: parsed.data } }, { slug: 1, name: 1, price: 1, images: { $slice: 2 }, sizes: 1 }).lean();
+  const products = await ProductModel.find({ slug: { $in: parsed.data } }, { slug: 1, name: 1, price: 1, compareAtPrice: 1, images: { $slice: 2 }, sizes: 1 }).lean();
   const bySlug = new Map(products.map((p) => [p.slug, p]));
   return parsed.data.flatMap((s) => {
     const p = bySlug.get(s);
-    return p ? [{ id: String(p._id), slug: p.slug, name: p.name, price: p.price, images: p.images.map((i) => i.url), sizes: p.sizes.map((z) => ({ size: z.size, stock: z.stock })) }] : [];
+    return p ? [{ id: String(p._id), slug: p.slug, name: p.name, price: p.price, compareAtPrice: p.compareAtPrice && p.compareAtPrice > p.price ? p.compareAtPrice : null, images: p.images.map((i) => i.url), sizes: p.sizes.map((z) => ({ size: z.size, stock: z.stock })) }] : [];
   });
 }

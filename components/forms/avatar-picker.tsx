@@ -10,12 +10,14 @@ import { IMAGE_TYPES } from "@/lib/validations/uploads";
 type Props = {
   id: string;
   name: string;
+  /** Current photo (edit profile); shown until a new file is picked. */
+  initialUrl?: string;
   "aria-invalid"?: boolean;
   "aria-describedby"?: string;
 };
 
 /** Profile-photo picker with a local preview. The <input> itself submits with the form. */
-export function AvatarPicker({ id, name, ...a11y }: Props) {
+export function AvatarPicker({ id, name, initialUrl, ...a11y }: Props) {
   const [preview, setPreview] = useState<string | null>(null);
   // Track the object URL in a ref: a [preview]-dependent cleanup would revoke the live URL
   // as soon as StrictMode re-runs effects, leaving the preview blank.
@@ -37,7 +39,7 @@ export function AvatarPicker({ id, name, ...a11y }: Props) {
   return (
     <div className="flex items-center gap-4">
       <Avatar className="size-16 border bg-muted">
-        {preview && <AvatarImage src={preview} alt="Selected profile photo" className="object-cover" />}
+        {(preview ?? initialUrl) && <AvatarImage src={(preview ?? initialUrl)!} alt={preview ? "Selected profile photo" : "Current profile photo"} className="object-cover" />}
         <AvatarFallback className="bg-muted">
           <UserRound className="size-7 text-muted-foreground" strokeWidth={1.5} />
         </AvatarFallback>
@@ -47,11 +49,11 @@ export function AvatarPicker({ id, name, ...a11y }: Props) {
           htmlFor={id}
           className={cn(
             buttonVariants({ variant: "outline", size: "lg" }),
-            "w-fit cursor-pointer has-[:focus-visible]:border-ring has-[:focus-visible]:ring-3 has-[:focus-visible]:ring-ring/50",
+            "w-fit cursor-pointer rounded-full px-4 has-[:focus-visible]:border-ring has-[:focus-visible]:ring-3 has-[:focus-visible]:ring-ring/50",
           )}
         >
           <Camera />
-          {preview ? "Change photo" : "Upload photo"}
+          {preview || initialUrl ? "Change photo" : "Upload photo"}
           <input
             id={id}
             name={name}

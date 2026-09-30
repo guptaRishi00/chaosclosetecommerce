@@ -90,13 +90,19 @@ export function HeroCarousel({ slides }: { slides: HeroSlide[] }) {
             <CarouselItem key={slide.src} aria-label={`${i + 1} of ${slides.length}`} className="pl-0">
               <div className="relative h-[calc(100svh-1.75rem)] max-h-[960px] min-h-[520px] overflow-hidden bg-black">
                 <HeroImage slide={slide} priority={i === 0} />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/75 via-black/15 to-black/10 sm:bg-gradient-to-r sm:from-black/65 sm:via-black/20 sm:to-transparent" />
-                <div className="absolute inset-0 mx-auto flex max-w-7xl flex-col items-start justify-end gap-3 px-4 pt-16 pb-20 text-white sm:justify-center sm:px-6 sm:pb-16">
-                  <p className="text-[11px] font-semibold tracking-[0.25em] text-brand-cream uppercase">{slide.eyebrow}</p>
-                  <h2 className="max-w-2xl font-heading text-3xl leading-[1.05] font-extrabold text-balance uppercase sm:text-5xl lg:text-6xl">
+                {/* Bottom-up scrim only where the lockup sits; the rest of the photo stays untouched */}
+                <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/10 to-transparent" />
+                {/* Campaign lockup, bottom-left on the navbar's gutter so it lines up with the logo */}
+                <div className="absolute inset-0 flex w-full flex-col items-start justify-end gap-3 px-3 pt-16 pb-16 text-white sm:px-5 sm:pb-20 lg:px-8 lg:pb-24">
+                  <p className="text-xs font-semibold tracking-[0.2em] text-brand-cream uppercase">{slide.eyebrow}</p>
+                  <h2 className="max-w-[14ch] font-heading text-4xl leading-[0.95] font-extrabold text-balance uppercase sm:text-6xl lg:text-7xl">
                     {slide.title}
                   </h2>
-                  <Button asChild size="lg" className="mt-3 h-9 rounded-none px-4 text-xs sm:h-11 sm:px-6 sm:text-sm font-semibold tracking-wide uppercase">
+                  <Button
+                    asChild
+                    size="lg"
+                    className="mt-3 h-10 rounded-full bg-white px-6 text-sm font-semibold text-ink hover:bg-brand-cream active:scale-[0.98] sm:h-12 sm:px-8 sm:text-base"
+                  >
                     <Link href={slide.cta.href}>{slide.cta.label}</Link>
                   </Button>
                 </div>
@@ -108,16 +114,16 @@ export function HeroCarousel({ slides }: { slides: HeroSlide[] }) {
         <CarouselPrevious
           variant="secondary"
           size="icon-lg"
-          className="left-4 hidden bg-white/80 text-black opacity-0 backdrop-blur transition-opacity group-hover:opacity-100 focus-visible:opacity-100 hover:bg-white sm:inline-flex"
+          className="left-4 hidden bg-white text-ink opacity-0 transition-opacity group-hover:opacity-100 focus-visible:opacity-100 hover:bg-white sm:inline-flex"
         />
         <CarouselNext
           variant="secondary"
           size="icon-lg"
-          className="right-4 hidden bg-white/80 text-black opacity-0 backdrop-blur transition-opacity group-hover:opacity-100 focus-visible:opacity-100 hover:bg-white sm:inline-flex"
+          className="right-4 hidden bg-white text-ink opacity-0 transition-opacity group-hover:opacity-100 focus-visible:opacity-100 hover:bg-white sm:inline-flex"
         />
 
-        <div className="pointer-events-none absolute inset-x-0 bottom-8">
-          <div className="mx-auto flex max-w-7xl gap-2 px-4 sm:px-6">
+        <div className="pointer-events-none absolute inset-x-0 bottom-6 sm:bottom-8">
+          <div className="flex w-full gap-2 px-3 sm:px-5 lg:px-8">
             {slides.map((slide, i) => (
               <button
                 key={slide.src}
@@ -127,7 +133,7 @@ export function HeroCarousel({ slides }: { slides: HeroSlide[] }) {
                 aria-current={i === current}
                 className={cn(
                   "pointer-events-auto h-1.5 rounded-full transition-all",
-                  i === current ? "w-8 bg-brand-red" : "w-4 bg-white/60 hover:bg-white",
+                  i === current ? "w-8 bg-white" : "w-4 bg-white/45 hover:bg-white/80",
                 )}
               />
             ))}

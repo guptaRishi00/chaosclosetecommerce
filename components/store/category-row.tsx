@@ -7,19 +7,19 @@ import { ProductCard } from "@/components/store/product-card";
 export function CategoryRow({ category, priority = false }: { category: CategoryShowcase; priority?: boolean }) {
   return (
     <section aria-labelledby={`row-${category.value}`} className="w-full px-3 sm:px-5 lg:px-8">
-      {/* Phones: button top-aligned with the title (h-7 = the title's 28px line); sm+: aligned to the count line */}
-      <div className="mb-5 flex items-start justify-between gap-4 sm:items-end">
-        <div>
-          <h2 id={`row-${category.value}`} className="font-heading text-xl font-extrabold uppercase sm:text-3xl">
+      {/* Phones: button top-aligned with the title (h-7 = the title's 28px line); sm+: centred on the heading line */}
+      <div className="mb-5 flex items-start justify-between gap-4 sm:items-center">
+        <div className="flex min-w-0 flex-wrap items-baseline gap-x-2 sm:gap-x-3">
+          <h2 id={`row-${category.value}`} className="text-xl font-semibold tracking-tight sm:text-[32px] sm:leading-tight">
             {category.label}
           </h2>
-          <p className="mt-1 text-xs text-black/55 sm:text-sm">
+          <p className="text-sm font-medium text-muted-foreground tabular-nums sm:text-base">
             {category.count} piece{category.count === 1 ? "" : "s"}
           </p>
         </div>
         <Link
           href={`/shop/${category.value}`}
-          className="group inline-flex h-7 shrink-0 items-center gap-1 border border-black px-2.5 text-[10px] font-bold tracking-wider uppercase transition-colors hover:bg-black hover:text-white sm:h-11 sm:gap-2 sm:px-5 sm:text-xs"
+          className="group inline-flex h-7 shrink-0 items-center gap-1 rounded-full bg-brand-cream px-3 text-xs font-semibold transition-colors hover:bg-ink hover:text-white active:scale-[0.98] sm:h-10 sm:gap-1.5 sm:px-5 sm:text-sm"
         >
           View all
           <ArrowRight className="size-3 transition-transform sm:size-4 group-hover:translate-x-0.5 motion-reduce:transition-none" aria-hidden />

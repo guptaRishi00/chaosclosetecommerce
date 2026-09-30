@@ -12,7 +12,7 @@ export type NewOrder = {
   productName: string;
   productImage?: string;
   category: string;
-  shipping: { name: string; address?: string; district?: string; country?: string };
+  shipping: { name: string; phone: string; house: string; area: string; landmark?: string; district: string; country: string };
   size: string;
   quantity: number;
   amount: number;
@@ -102,5 +102,39 @@ export async function restockReturnedOrder(orderId: string): Promise<boolean> {
       return false;
     }
     return true;
+  });
+}
+
+export type CancelResult = { ok: true; restocked: boolean } | { ok: false };
+
+/**
+ * Cancel an order that hasn't been delivered yet and put its units back, in one transaction.
+ * The status flip is conditional (fulfillment "not-delivered", and the customer's own order when
+ * `userId` is given), so a cancel racing an admin "delivered" can only have one winner, and a
+ * double-click can't restock twice. Returns ok:false if the order isn't cancellable (any more).
+ */
+export async function cancelOrderWithStock(orderId: string, by: "customer" | "admin", userId?: string): Promise<CancelResult> {
+  return mongoose.connection.transaction(async (session) => {
+    const filter: Record<string, unknown> = { _id: orderId, fulfillment: "not-delivered" };
+    if (userId) filter.user = userId;
+    const order = await OrderModel.findOneAndUpdate(
+      filter,
+      { $set: { fulfillment: "cancelled", cancelInfo: { cancelledAt: new Date(), by, restocked: false } } },
+      { session, returnDocument: "after" },
+    );
+    if (!order) return { ok: false } as const;
+
+    let restocked = false;
+    if (order.stockApplied) {
+      // Product or size may have been removed since; then there's nothing to put back.
+      const res = await ProductModel.updateOne(
+        { _id: order.product, "sizes.size": order.size },
+        { $inc: { "sizes.$.stock": order.quantity } },
+        { session },
+      );
+      restocked = res.modifiedCount > 0;
+      if (restocked) await OrderModel.updateOne({ _id: order._id }, { $set: { "cancelInfo.restocked": true } }, { session });
+    }
+    return { ok: true, restocked } as const;
   });
 }

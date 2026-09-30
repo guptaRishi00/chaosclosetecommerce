@@ -17,8 +17,8 @@ export function WishlistButton({ item, className, size = "md" }: { item: WishIte
       aria-pressed={saved}
       aria-label={saved ? `Remove ${item.name} from wishlist` : `Save ${item.name} to wishlist`}
       className={cn(
-        "flex items-center justify-center rounded-full bg-white/90 text-black shadow-sm backdrop-blur transition hover:bg-white active:scale-95",
-        size === "md" ? "size-8 sm:size-9" : "size-10 border border-black/15 sm:size-11",
+        "flex items-center justify-center rounded-full bg-white text-ink transition hover:bg-brand-cream active:scale-95",
+        size === "md" ? "size-8 sm:size-9" : "size-10 border border-ink/15 sm:size-11",
         className,
       )}
     >

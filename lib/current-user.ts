@@ -12,7 +12,7 @@ export const getCurrentUser = cache(async () => {
   const session = await getSession();
   if (!session) return null;
   await connectDB();
-  const user = await UserModel.findById(session.userId).select("name email role address district country").lean();
+  const user = await UserModel.findById(session.userId).select("name email role address district country phone").lean();
   if (!user) return null;
-  return { ...session, name: user.name, address: user.address, district: user.district, country: user.country };
+  return { ...session, name: user.name, address: user.address, district: user.district, country: user.country, phone: user.phone };
 });

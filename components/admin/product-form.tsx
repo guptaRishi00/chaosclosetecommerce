@@ -7,7 +7,7 @@ import { createProduct, updateProduct } from "@/lib/actions/products.actions";
 import { CATEGORIES, MAX_PRODUCT_IMAGES, MAX_PRODUCT_UPLOAD_BYTES, sizesFor } from "@/lib/catalog";
 import { productFormToInput, productSchema, productUpdateFormToInput, updateProductSchema } from "@/lib/validations/products";
 import { IMAGE_TYPES, imageFileSchema } from "@/lib/validations/uploads";
-import { cn } from "@/lib/utils";
+import { cn, discountPercent } from "@/lib/utils";
 import { StockStatus } from "@/components/admin/stock-badge";
 import { useValidatedAction } from "@/components/forms/use-validated-action";
 import { Button } from "@/components/ui/button";
@@ -27,6 +27,7 @@ export type EditableProduct = {
   name: string;
   description: string;
   price: string; // rupees
+  compareAtPrice: string; // rupees, "" = none
   category: string;
   images: { publicId: string; url: string }[];
   sizes: { size: string; stock: number }[];
@@ -52,9 +53,13 @@ export function ProductForm({ product }: { product?: EditableProduct }) {
   );
   const [category, setCategory] = useState(product?.category ?? "");
   const [sizes, setSizes] = useState<Record<string, SizeRow>>(() => initialSizes(product));
+  // Live "% off" hint under the cut price (rupees as typed; the schema does the real check).
+  const [prices, setPrices] = useState({ price: product?.price ?? "", compareAt: product?.compareAtPrice ?? "" });
+  const previewOff = discountPercent(Number(prices.price) * 100, Number(prices.compareAt) * 100);
   const name = field("name");
   const description = field("description");
   const price = field("price");
+  const compareAtPrice = field("compareAtPrice");
   const categoryField = field("category");
   const images = field("images");
   const sizesField = field("sizes");
@@ -119,11 +124,56 @@ export function ProductForm({ product }: { product?: EditableProduct }) {
                   <InputGroupAddon>
                     <InputGroupText>₹</InputGroupText>
                   </InputGroupAddon>
-                  <InputGroupInput {...price.control} defaultValue={product?.price} type="number" inputMode="decimal" min="1" step="0.01" placeholder="0.00" className="h-full font-mono" />
+                  <InputGroupInput
+                    {...price.control}
+                    defaultValue={product?.price}
+                    onInput={(e) => {
+                      const value = e.currentTarget.value; // read now: currentTarget is null by the time the updater runs
+                      setPrices((p) => ({ ...p, price: value }));
+                    }}
+                    type="number"
+                    inputMode="decimal"
+                    min="1"
+                    step="0.01"
+                    placeholder="0.00"
+                    className="h-full font-mono"
+                  />
                 </InputGroup>
                 <FieldError id={price.errorId}>{price.error}</FieldError>
               </Field>
-              <Field data-invalid={categoryField.invalid}>
+              <Field data-invalid={compareAtPrice.invalid}>
+                <FieldLabel htmlFor="compareAtPrice">
+                  Cut price (MRP) <span className="font-normal text-muted-foreground">Optional</span>
+                </FieldLabel>
+                <InputGroup className="h-9 bg-background">
+                  <InputGroupAddon>
+                    <InputGroupText>₹</InputGroupText>
+                  </InputGroupAddon>
+                  <InputGroupInput
+                    {...compareAtPrice.control}
+                    defaultValue={product?.compareAtPrice}
+                    onInput={(e) => {
+                      const value = e.currentTarget.value;
+                      setPrices((p) => ({ ...p, compareAt: value }));
+                    }}
+                    type="number"
+                    inputMode="decimal"
+                    min="1"
+                    step="0.01"
+                    placeholder="0.00"
+                    aria-describedby={compareAtPrice.invalid ? compareAtPrice.errorId : "compareAtPrice-hint"}
+                    className="h-full font-mono"
+                  />
+                </InputGroup>
+                {compareAtPrice.invalid ? (
+                  <FieldError id={compareAtPrice.errorId}>{compareAtPrice.error}</FieldError>
+                ) : (
+                  <FieldDescription id="compareAtPrice-hint" className="text-xs">
+                    {previewOff > 0 ? `Shown struck through · ${previewOff}% off` : "Shown struck through. Leave empty for no discount."}
+                  </FieldDescription>
+                )}
+              </Field>
+              <Field data-invalid={categoryField.invalid} className="sm:col-span-2">
                 <FieldLabel htmlFor="category">Category</FieldLabel>
                 <Select name="category" value={category} onValueChange={onCategoryChange}>
                   <SelectTrigger

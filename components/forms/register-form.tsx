@@ -24,7 +24,7 @@ import { AvatarPicker } from "./avatar-picker";
 import { PasswordInput } from "./password-input";
 import { useValidatedAction } from "./use-validated-action";
 
-const legendClass = "mb-3 font-heading text-[11px] font-bold tracking-[0.2em] text-brand-red uppercase";
+const legendClass = "mb-3 text-lg font-semibold tracking-tight";
 
 export function RegisterForm({ next }: { next?: string }) {
   const { formAction, formRef, pending, onSubmit, message, field } = useValidatedAction(registerSchema, register);
@@ -34,6 +34,7 @@ export function RegisterForm({ next }: { next?: string }) {
     age: field("age"),
     gender: field("gender"),
     email: field("email"),
+    phone: field("phone"),
     password: field("password"),
     country: field("country"),
     district: field("district"),
@@ -55,12 +56,12 @@ export function RegisterForm({ next }: { next?: string }) {
             </Field>
             <Field data-invalid={f.name.invalid}>
               <FieldLabel htmlFor="name">Full name</FieldLabel>
-              <Input {...f.name.control} autoComplete="name" className="h-9" required />
+              <Input {...f.name.control} autoComplete="name" className="h-10 sm:h-11" required />
               <FieldError id={f.name.errorId}>{f.name.error}</FieldError>
             </Field>
             <Field data-invalid={f.age.invalid} className="max-w-32">
               <FieldLabel htmlFor="age">Age</FieldLabel>
-              <Input {...f.age.control} type="number" inputMode="numeric" min={13} max={120} className="h-9" required />
+              <Input {...f.age.control} type="number" inputMode="numeric" min={13} max={120} className="h-10 sm:h-11" required />
               <FieldError id={f.age.errorId}>{f.age.error}</FieldError>
             </Field>
             <FieldSet data-invalid={f.gender.invalid} aria-describedby={f.gender.invalid ? f.gender.errorId : undefined}>
@@ -87,12 +88,23 @@ export function RegisterForm({ next }: { next?: string }) {
           <FieldGroup className="gap-4">
             <Field data-invalid={f.email.invalid}>
               <FieldLabel htmlFor="email">Email</FieldLabel>
-              <Input {...f.email.control} type="email" autoComplete="email" placeholder="you@example.com" className="h-9" required />
+              <Input {...f.email.control} type="email" autoComplete="email" placeholder="you@example.com" className="h-10 sm:h-11" required />
               <FieldError id={f.email.errorId}>{f.email.error}</FieldError>
+            </Field>
+            <Field data-invalid={f.phone.invalid}>
+              <FieldLabel htmlFor="phone">
+                Mobile number <span className="font-normal text-muted-foreground">(optional)</span>
+              </FieldLabel>
+              <Input {...f.phone.control} type="tel" inputMode="tel" autoComplete="tel-national" placeholder="10-digit mobile" className="h-10 sm:h-11" />
+              {f.phone.invalid ? (
+                <FieldError id={f.phone.errorId}>{f.phone.error}</FieldError>
+              ) : (
+                <FieldDescription className="text-xs">We fill it in for you at checkout.</FieldDescription>
+              )}
             </Field>
             <Field data-invalid={f.password.invalid}>
               <FieldLabel htmlFor="password">Password</FieldLabel>
-              <PasswordInput {...f.password.control} autoComplete="new-password" className="h-9" required />
+              <PasswordInput {...f.password.control} autoComplete="new-password" className="h-10 sm:h-11" required />
               {f.password.invalid ? (
                 <FieldError id={f.password.errorId}>{f.password.error}</FieldError>
               ) : (
@@ -111,7 +123,7 @@ export function RegisterForm({ next }: { next?: string }) {
               <Field data-invalid={f.country.invalid}>
                 <FieldLabel htmlFor="country">Country</FieldLabel>
                 {/* readOnly (not disabled) so the value is still submitted; the server enforces it anyway */}
-                <InputGroup className="h-9 bg-muted/40">
+                <InputGroup className="h-10 bg-muted/60 sm:h-11">
                   <InputGroupInput
                     {...f.country.control}
                     value={COUNTRY}
@@ -128,7 +140,7 @@ export function RegisterForm({ next }: { next?: string }) {
               </Field>
               <Field data-invalid={f.district.invalid}>
                 <FieldLabel htmlFor="district">District</FieldLabel>
-                <Input {...f.district.control} autoComplete="address-level2" placeholder="e.g. Dibrugarh" className="h-9" required />
+                <Input {...f.district.control} autoComplete="address-level2" placeholder="e.g. Dibrugarh" className="h-10 sm:h-11" required />
                 <FieldError id={f.district.errorId}>{f.district.error}</FieldError>
               </Field>
             </div>
@@ -148,7 +160,7 @@ export function RegisterForm({ next }: { next?: string }) {
           </FieldGroup>
         </FieldSet>
 
-        <SubmitButton pending={pending} pendingLabel="Creating account…" className="h-9 font-semibold sm:h-10">
+        <SubmitButton pending={pending} pendingLabel="Creating account…" className="rounded-full text-sm font-semibold active:scale-[0.98] h-10 sm:h-12 sm:text-base">
           Create account
         </SubmitButton>
       </FieldGroup>

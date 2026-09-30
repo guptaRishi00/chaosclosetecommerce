@@ -41,17 +41,17 @@ export function WishlistView() {
 
   return (
     <div className="flex flex-col gap-8">
-      <div className="flex items-baseline justify-between gap-4 border-b border-black/15 pb-4">
-        <h1 className="font-heading text-2xl font-extrabold uppercase sm:text-3xl">Wishlist</h1>
+      <div className="flex items-baseline justify-between gap-4 border-b border-ink/12 pb-4">
+        <h1 className="text-2xl font-semibold tracking-tight sm:text-[32px] sm:leading-tight">Wishlist</h1>
         {hydrated && wish.count > 0 && (
-          <p className="text-sm text-black/60">
+          <p className="text-sm text-muted-foreground sm:text-base">
             {wish.count} saved
           </p>
         )}
       </div>
 
       {failed ? (
-        <p role="alert" className="py-16 text-center text-sm text-black/70">
+        <p role="alert" className="py-16 text-center text-sm text-ink/70">
           Couldn&apos;t load your wishlist.{" "}
           <button type="button" onClick={() => location.reload()} className="font-semibold underline underline-offset-4 hover:text-brand-red">
             Try again
@@ -61,17 +61,17 @@ export function WishlistView() {
         <div aria-hidden className="grid grid-cols-2 gap-x-2 gap-y-8 sm:grid-cols-3 sm:gap-x-3 lg:grid-cols-4 lg:gap-x-4">
           {[0, 1, 2, 3].map((i) => (
             <div key={i} className="flex flex-col gap-3">
-              <div className="aspect-[3/4] animate-pulse bg-black/10" />
-              <div className="h-3 w-3/4 animate-pulse bg-black/10" />
+              <div className="aspect-[3/4] animate-pulse bg-brand-cream" />
+              <div className="h-3 w-3/4 animate-pulse bg-muted" />
             </div>
           ))}
         </div>
       ) : wish.count === 0 ? (
         <div className="mx-auto flex max-w-md flex-col items-center gap-4 py-16 text-center">
-          <Heart className="size-12 text-black/30" strokeWidth={1.25} aria-hidden />
-          <p className="font-heading text-xl font-extrabold uppercase">Nothing saved yet</p>
-          <p className="text-black/60">Tap the heart on any product to keep it here.</p>
-          <Link href="/" className="inline-flex items-center bg-black h-9 px-4 text-xs sm:h-11 sm:px-5 sm:text-sm font-bold tracking-wide text-white uppercase hover:bg-brand-red">
+          <Heart className="size-12 text-ink/30" strokeWidth={1.25} aria-hidden />
+          <p className="text-2xl font-semibold tracking-tight">Nothing saved yet</p>
+          <p className="text-muted-foreground">Tap the heart on any product to keep it here.</p>
+          <Link href="/" className="inline-flex items-center justify-center rounded-full bg-ink h-10 px-5 text-sm font-semibold text-white transition-colors hover:bg-brand-red active:scale-[0.98] sm:h-12 sm:px-8 sm:text-base">
             Start shopping
           </Link>
         </div>
@@ -83,8 +83,8 @@ export function WishlistView() {
             ))}
           </div>
           {missing.length > 0 && (
-            <div className="flex flex-wrap items-center justify-between gap-3 border border-black/10 bg-white px-4 py-3 text-sm">
-              <p className="text-black/70">
+            <div className="flex flex-wrap items-center justify-between gap-3 bg-brand-cream px-4 py-3 text-sm">
+              <p className="text-ink/75">
                 {missing.length} saved item{missing.length === 1 ? " is" : "s are"} no longer available.
               </p>
               <button type="button" onClick={() => missing.forEach((m) => wish.remove(m.productId))} className="font-semibold underline underline-offset-4 hover:text-brand-red">

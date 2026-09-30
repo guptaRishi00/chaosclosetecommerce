@@ -23,12 +23,12 @@ export function NewsletterForm() {
           type="email"
           autoComplete="email"
           placeholder="Your email"
-          className="min-w-0 flex-1 bg-transparent text-base text-white placeholder:text-white/70 outline-none"
+          className="min-w-0 flex-1 bg-transparent text-base text-white placeholder:text-white/85 outline-none"
         />
         <button
           type="submit"
           disabled={pending}
-          className="flex shrink-0 items-center gap-2 px-1 text-xs font-bold sm:text-sm tracking-wide text-white uppercase hover:text-brand-cream disabled:opacity-60"
+          className="flex shrink-0 items-center gap-2 px-1 text-sm font-semibold text-white hover:text-brand-cream disabled:opacity-60 sm:text-base"
         >
           {pending ? "Joining…" : "Join"}
           <ArrowRight className="size-4" aria-hidden />

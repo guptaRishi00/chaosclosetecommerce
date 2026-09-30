@@ -11,7 +11,7 @@ export function ProductGallery({ images, name }: { images: string[]; name: strin
 
   if (images.length === 0) {
     return (
-      <div className="flex aspect-[4/5] items-center justify-center bg-brand-cream text-black/25">
+      <div className="flex aspect-[4/5] items-center justify-center bg-brand-cream text-ink/25">
         <Shirt className="size-16" strokeWidth={1} aria-hidden />
       </div>
     );
@@ -45,7 +45,7 @@ export function ProductGallery({ images, name }: { images: string[]; name: strin
                 aria-current={i === active}
                 className={cn(
                   "relative aspect-square overflow-hidden bg-brand-cream outline-none focus-visible:ring-2 focus-visible:ring-brand-red",
-                  i === active ? "ring-2 ring-black" : "opacity-70 hover:opacity-100",
+                  i === active ? "ring-2 ring-ink" : "opacity-70 hover:opacity-100",
                 )}
               >
                 <Image src={src} alt="" fill sizes="96px" className="object-cover" />

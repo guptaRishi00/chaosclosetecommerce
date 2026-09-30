@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { phoneSchema } from "@/lib/validations/checkout";
 import { optionalImageSchema } from "@/lib/validations/uploads";
 
 // Shared by the client forms (instant feedback) and the Server Actions (the actual gate).
@@ -32,6 +33,8 @@ export const registerSchema = z.object({
   country: z.literal(COUNTRY, { error: `We currently ship only within ${COUNTRY}` }),
   address: z.string().trim().min(5, "Enter your full address").max(200),
   district: z.string().trim().min(2, "Enter your district").max(60),
+  // Optional; prefills the phone at checkout. "" → undefined so an empty field isn't an invalid number.
+  phone: z.preprocess((v) => (v === "" ? undefined : v), phoneSchema.optional()),
   // "" → undefined first, otherwise coerce turns an empty field into 0 and says "must be at least 13"
   age: z.preprocess(
     (v) => (v === "" ? undefined : v),
@@ -48,3 +51,13 @@ export const registerSchema = z.object({
 export type LoginInput = z.infer<typeof loginSchema>;
 export type RegisterInput = z.input<typeof registerSchema>;
 export type Gender = (typeof genderValues)[number];
+
+/**
+ * Customer edits their own profile. Email, password, country and role are deliberately not
+ * editable here. `avatar` = optional new photo; `removeAvatar` drops the current one.
+ */
+export const profileSchema = registerSchema
+  .pick({ name: true, phone: true, age: true, gender: true, district: true, address: true, avatar: true })
+  .extend({ removeAvatar: z.preprocess((v) => v === "on" || v === true, z.boolean()) });
+
+export type ProfileInput = z.input<typeof profileSchema>;

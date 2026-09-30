@@ -25,6 +25,8 @@ const productSchema = new Schema(
     slug: { type: String, required: true, unique: true }, // for storefront URLs
     description: { type: String, default: "" },
     price: { type: Number, required: true, min: 1 }, // integer paise
+    // Optional "cut" price (MRP) shown struck through next to `price`; always > price (products schema).
+    compareAtPrice: { type: Number, min: 1 },
     category: { type: String, required: true, enum: CATEGORY_VALUES, index: true },
     images: { type: [imageSchema], default: [] }, // first image is the cover
     sizes: { type: [sizeSchema], default: [] },

@@ -21,15 +21,15 @@ export function LoginForm({ next }: { next?: string }) {
         {message && <Alert>{message}</Alert>}
         <Field data-invalid={email.invalid}>
           <FieldLabel htmlFor="email">Email</FieldLabel>
-          <Input {...email.control} type="email" autoComplete="email" placeholder="you@example.com" className="h-9" required />
+          <Input {...email.control} type="email" autoComplete="email" placeholder="you@example.com" className="h-10 sm:h-11" required />
           <FieldError id={email.errorId}>{email.error}</FieldError>
         </Field>
         <Field data-invalid={password.invalid}>
           <FieldLabel htmlFor="password">Password</FieldLabel>
-          <PasswordInput {...password.control} autoComplete="current-password" className="h-9" required />
+          <PasswordInput {...password.control} autoComplete="current-password" className="h-10 sm:h-11" required />
           <FieldError id={password.errorId}>{password.error}</FieldError>
         </Field>
-        <SubmitButton pending={pending} pendingLabel="Logging in…" className="mt-2 h-9 font-semibold sm:h-10">
+        <SubmitButton pending={pending} pendingLabel="Logging in…" className="mt-2 rounded-full text-sm font-semibold active:scale-[0.98] h-10 sm:h-12 sm:text-base">
           Log in
         </SubmitButton>
       </FieldGroup>

@@ -13,6 +13,7 @@ const userSchema = new Schema(
     country: { type: String, default: "India" },
     address: { type: String, trim: true },
     district: { type: String, trim: true },
+    phone: { type: String, trim: true }, // 10-digit Indian mobile, optional at signup; prefills checkout
     age: { type: Number, min: 13, max: 120 },
     gender: { type: String, enum: ["female", "male", "other", "prefer-not-to-say"] },
     avatar: {
