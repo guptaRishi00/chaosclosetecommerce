@@ -2,6 +2,7 @@
 
 import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
+import { CircleX } from "lucide-react";
 import { cancelMyOrder } from "@/lib/actions/checkout.actions";
 import {
   AlertDialog,
@@ -45,11 +46,14 @@ export function CancelOrderButton({ orderId, summary }: { orderId: string; summa
       }}
     >
       <AlertDialogTrigger asChild>
+        {/* Phones: 40px icon circle (label stays for screen readers). sm+: quiet ghost pill with icon + label. */}
         <button
           type="button"
-          className="inline-flex h-8 items-center rounded-full bg-white px-3 text-xs font-semibold text-ink ring-1 ring-ink/15 transition-colors hover:text-brand-red hover:ring-brand-red/40 active:scale-[0.98]"
+          title="Cancel order"
+          className="inline-flex size-10 shrink-0 items-center justify-center gap-1.5 rounded-full text-ink/60 ring-1 ring-ink/15 transition-colors hover:text-brand-red hover:ring-brand-red/40 active:scale-95 sm:size-auto sm:h-9 sm:px-3.5 sm:text-sm sm:font-semibold"
         >
-          Cancel order
+          <CircleX className="size-[18px] sm:size-4" strokeWidth={1.75} aria-hidden />
+          <span className="sr-only sm:not-sr-only">Cancel order</span>
         </button>
       </AlertDialogTrigger>
       <AlertDialogContent className="rounded-none p-6 data-[size=default]:sm:max-w-md">

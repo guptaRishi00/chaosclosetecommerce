@@ -131,15 +131,19 @@ export default async function DashboardPage({ searchParams }: { searchParams: Pr
                     <div className="relative aspect-[3/4] w-16 shrink-0 overflow-hidden bg-brand-cream sm:w-20">
                       {o.productImage && <Image src={o.productImage} alt="" fill sizes="80px" className="object-cover" />}
                     </div>
-                    <div className="flex min-w-0 flex-1 flex-col gap-2 sm:flex-row sm:items-start sm:justify-between sm:gap-4">
-                      <div className="min-w-0">
-                        <p className="line-clamp-2 text-[15px]">{name}</p>
-                        <p className="mt-1 text-sm text-muted-foreground">
-                          Size {o.size} × {o.quantity} · {dateFmt.format(o.createdAt)}
-                        </p>
+                    {/* Details + price on top; status (left) and its action (right) share the footer line,
+                        like a bag line's stepper + Remove. Same layout at every width. */}
+                    <div className="flex min-w-0 flex-1 flex-col gap-3">
+                      <div className="flex items-start justify-between gap-3">
+                        <div className="min-w-0">
+                          <p className="line-clamp-2 text-[15px]">{name}</p>
+                          <p className="mt-1 text-sm text-muted-foreground">
+                            Size {o.size} × {o.quantity} · {dateFmt.format(o.createdAt)}
+                          </p>
+                        </div>
+                        <span className="shrink-0 text-[15px] font-semibold tabular-nums">{formatINR(o.amount)}</span>
                       </div>
-                      <div className="flex flex-wrap items-center gap-x-3 gap-y-1 sm:flex-col sm:items-end sm:gap-1">
-                        <span className="text-sm font-semibold tabular-nums">{formatINR(o.amount)}</span>
+                      <div className="mt-auto flex min-h-10 items-center justify-between gap-3 sm:min-h-9">
                         <span className={cn("rounded-full px-2.5 py-0.5 text-xs font-semibold whitespace-nowrap", s.className)}>{s.label}</span>
                         {o.fulfillment === "not-delivered" && (
                           <CancelOrderButton

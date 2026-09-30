@@ -49,6 +49,12 @@ percentage is rounded down so it never overstates. Without a cut price, show the
 Use one black pill per decision area; the alternative action is the cream pill. Every
 pill gets `active:scale-[0.98]` as press feedback.
 
+**Row actions** (Cancel order on My orders, Remove in the bag): put them at the bottom right of
+the row, on the same line as the row's state (status chip or quantity stepper), with the price
+on the top line. Keep them quiet: a ghost pill with a hairline ring and an icon plus label,
+turning red on hover. Below `sm` they become a 40px icon-only circle that keeps the label as
+`sr-only` text.
+
 ## Layout
 - Page gutter = navbar gutter `px-3 sm:px-5 lg:px-8`, full width. The hero lockup sits on the same gutter, anchored bottom-left.
 - Product grids: 2 → 3/4 columns, `gap-x-2 sm:gap-x-3 lg:gap-x-4`. Card metadata sits directly under the image with no padding.
