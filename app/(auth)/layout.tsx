@@ -12,7 +12,7 @@ export default function AuthLayout({ children }: { children: React.ReactNode }) 
         <aside className="relative hidden lg:block">
           <div className="sticky top-0 h-dvh overflow-hidden bg-black">
             <Image
-              src="https://images.unsplash.com/photo-1490481651871-ab68de25d43d?w=1400&q=80"
+              src="/hero/auth.webp"
               alt=""
               fill
               priority
