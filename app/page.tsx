@@ -4,6 +4,8 @@ import { CategoryRow } from "@/components/store/category-row";
 import { SiteFooter } from "@/components/site/site-footer";
 import { SiteHeader } from "@/components/site/site-header";
 import { PromiseStrip } from "@/components/store/promise-strip";
+import { JsonLd } from "@/components/site/json-ld";
+import { canonicalUrl } from "@/lib/seo";
 
 // Desktop images are landscape; `mobileSrc` is a portrait (1080x1920) version for phones.
 // public/hero/*-mobile.jpg are subject-aware crops of the desktop shots; replace them with
@@ -52,6 +54,20 @@ export default async function HomePage() {
 
   return (
     <>
+      <JsonLd data={{
+        "@context": "https://schema.org",
+        "@type": "Organization",
+        name: "Chaos Closet",
+        url: canonicalUrl("/").toString(),
+        logo: canonicalUrl("/logo.png").toString(),
+      }} />
+      <JsonLd data={{
+        "@context": "https://schema.org",
+        "@type": "WebSite",
+        name: "Chaos Closet",
+        url: canonicalUrl("/").toString(),
+        inLanguage: "en-IN",
+      }} />
       <SiteHeader />
       <main>
         <HeroCarousel slides={slides} />

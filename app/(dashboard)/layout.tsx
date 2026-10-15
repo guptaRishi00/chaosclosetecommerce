@@ -2,6 +2,9 @@ import { redirect } from "next/navigation";
 import { getCurrentUser } from "@/lib/current-user";
 import { SiteFooter } from "@/components/site/site-footer";
 import { SiteHeader } from "@/components/site/site-header";
+import type { Metadata } from "next";
+
+export const metadata: Metadata = { robots: { index: false, follow: false, googleBot: { index: false, follow: false } } };
 
 // Second line of defence after middleware.ts: every page in this group re-verifies the
 // session AND that the account still exists (an admin may have deleted it).

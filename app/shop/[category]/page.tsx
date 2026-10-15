@@ -9,21 +9,45 @@ import { ListPagination } from "@/components/admin/list-pagination";
 import { SiteFooter } from "@/components/site/site-footer";
 import { SiteHeader } from "@/components/site/site-header";
 import { ProductCard } from "@/components/store/product-card";
+import { JsonLd } from "@/components/site/json-ld";
+import { canonicalUrl } from "@/lib/seo";
 
-type Params = { params: Promise<{ category: string }>; searchParams: Promise<{ page?: string }> };
+type Params = { params: Promise<{ category: string }>; searchParams: Promise<{ page?: string | string[] }> };
 
-export async function generateMetadata({ params }: Params): Promise<Metadata> {
-  const { category } = await params;
-  return isCategory(category) ? { title: categoryLabel(category), description: `Shop ${categoryLabel(category)} at Chaos Closet.` } : {};
+export async function generateMetadata({ params, searchParams }: Params): Promise<Metadata> {
+  const [{ category }, { page }] = await Promise.all([params, searchParams]);
+  if (!isCategory(category)) return { robots: { index: false, follow: false } };
+  const { info } = await getCategoryProducts(category, parsePage(typeof page === "string" ? page : page?.[0]));
+  const label = categoryLabel(category);
+  const canonical = canonicalUrl(`/shop/${category}${info.page > 1 ? `?page=${info.page}` : ""}`);
+  const title = info.page > 1 ? `${label} – Page ${info.page}` : label;
+  const description = `Shop ${label} at Chaos Closet. Browse ${info.total} ${info.total === 1 ? "piece" : "pieces"} with cash on delivery and free shipping in Dibrugarh.`;
+  return {
+    title,
+    description,
+    alternates: { canonical },
+    openGraph: { type: "website", title, description, url: canonical },
+    twitter: { card: "summary", title, description },
+    ...(info.total === 0 ? { robots: { index: false, follow: true } } : {}),
+  };
 }
 
 export default async function ShopCategoryPage({ params, searchParams }: Params) {
   const [{ category }, { page }] = await Promise.all([params, searchParams]);
   if (!isCategory(category)) notFound();
   const { info, products } = await getCategoryProducts(category, parsePage(page));
+  const categoryJsonLd = {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    itemListElement: [
+      { "@type": "ListItem", position: 1, name: "Home", item: canonicalUrl("/").toString() },
+      { "@type": "ListItem", position: 2, name: categoryLabel(category), item: canonicalUrl(`/shop/${category}`).toString() },
+    ],
+  };
 
   return (
     <>
+      <JsonLd data={categoryJsonLd} />
       <SiteHeader />
       <main className="flex w-full flex-col gap-6 px-3 pt-10 pb-20 sm:gap-8 sm:px-5 md:pt-14 lg:px-8">
         <div className="flex flex-col gap-2">

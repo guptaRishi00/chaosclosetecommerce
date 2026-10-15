@@ -13,17 +13,23 @@ import { OrderPanel } from "@/components/store/order-panel";
 import { ProductCard } from "@/components/store/product-card";
 import { ProductGallery } from "@/components/store/product-gallery";
 import { Price } from "@/components/store/price";
+import { JsonLd } from "@/components/site/json-ld";
+import { canonicalUrl } from "@/lib/seo";
 
 type Params = { params: Promise<{ slug: string }> };
 
 export async function generateMetadata({ params }: Params): Promise<Metadata> {
   const data = await getProductBySlug((await params).slug);
-  if (!data) return {};
+  if (!data) return { robots: { index: false, follow: false } };
   const { product } = data;
+  const url = canonicalUrl(`/product/${product.slug}`);
+  const description = (product.description || `${product.name} in ${categoryLabel(product.category)} at Chaos Closet.`).slice(0, 160);
   return {
     title: product.name,
-    description: product.description.slice(0, 155),
-    openGraph: { title: product.name, images: product.gallery.slice(0, 1) },
+    description,
+    alternates: { canonical: url },
+    openGraph: { type: "website", title: product.name, description, url, images: product.gallery.slice(0, 1) },
+    twitter: { card: "summary_large_image", title: product.name, description, images: product.gallery.slice(0, 1) },
   };
 }
 
@@ -32,9 +38,40 @@ export default async function ProductPage({ params }: Params) {
   if (!data) notFound();
   const { product, related } = data;
   const delivery = user ? await getDeliveryDefaults(user) : null;
+  const productUrl = canonicalUrl(`/product/${product.slug}`).toString();
+  const productJsonLd = {
+    "@context": "https://schema.org",
+    "@type": "Product",
+    name: product.name,
+    ...(product.description ? { description: product.description } : {}),
+    image: product.gallery,
+    sku: product.slug,
+    brand: { "@type": "Brand", name: "Chaos Closet" },
+    category: categoryLabel(product.category),
+    offers: {
+      "@type": "Offer",
+      url: productUrl,
+      priceCurrency: "INR",
+      price: (product.price / 100).toFixed(2),
+      availability: product.sizes.some((size) => size.stock > 0)
+        ? "https://schema.org/InStock"
+        : "https://schema.org/OutOfStock",
+    },
+  };
+  const breadcrumbJsonLd = {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    itemListElement: [
+      { "@type": "ListItem", position: 1, name: "Home", item: canonicalUrl("/").toString() },
+      { "@type": "ListItem", position: 2, name: categoryLabel(product.category), item: canonicalUrl(`/shop/${product.category}`).toString() },
+      { "@type": "ListItem", position: 3, name: product.name, item: productUrl },
+    ],
+  };
 
   return (
     <>
+      <JsonLd data={productJsonLd} />
+      <JsonLd data={breadcrumbJsonLd} />
       <SiteHeader />
       <main className="w-full px-3 pt-6 pb-20 sm:px-5 md:pt-10 lg:px-8">
         <nav aria-label="Breadcrumb" className="mb-6 flex items-center gap-1 text-sm text-muted-foreground">
@@ -45,6 +82,8 @@ export default async function ProductPage({ params }: Params) {
           <Link href={`/shop/${product.category}`} className="hover:text-ink">
             {categoryLabel(product.category)}
           </Link>
+          <ChevronRight className="size-3.5" aria-hidden />
+          <span aria-current="page" className="truncate text-ink">{product.name}</span>
         </nav>
 
         <div className="grid grid-cols-1 gap-8 md:grid-cols-[minmax(0,1.1fr)_minmax(0,1fr)] md:gap-12 lg:gap-16">

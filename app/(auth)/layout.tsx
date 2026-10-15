@@ -1,6 +1,9 @@
 import Image from "next/image";
 import { PiStarFourFill } from "react-icons/pi";
 import { SiteHeader } from "@/components/site/site-header";
+import type { Metadata } from "next";
+
+export const metadata: Metadata = { robots: { index: false, follow: false, googleBot: { index: false, follow: false } } };
 
 export default function AuthLayout({ children }: { children: React.ReactNode }) {
   return (
