@@ -23,7 +23,6 @@ export const metadata: Metadata = {
   title: { default: "Chaos Closet | Thrift and streetwear", template: "%s | Chaos Closet" },
   description: "Shop thrift and surplus clothing, streetwear, jeans, shirts and more at Chaos Closet. Cash on delivery and free shipping in Dibrugarh.",
   applicationName: "Chaos Closet",
-  alternates: { canonical: "/" },
   openGraph: {
     type: "website",
     locale: "en_IN",

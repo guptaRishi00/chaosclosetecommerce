@@ -14,7 +14,7 @@ import { ProductCard } from "@/components/store/product-card";
 import { ProductGallery } from "@/components/store/product-gallery";
 import { Price } from "@/components/store/price";
 import { JsonLd } from "@/components/site/json-ld";
-import { canonicalUrl } from "@/lib/seo";
+import { canonicalUrl, hasIndexableProductContent, truncateDescription } from "@/lib/seo";
 
 type Params = { params: Promise<{ slug: string }> };
 
@@ -22,8 +22,15 @@ export async function generateMetadata({ params }: Params): Promise<Metadata> {
   const data = await getProductBySlug((await params).slug);
   if (!data) return { robots: { index: false, follow: false } };
   const { product } = data;
+  if (!hasIndexableProductContent(product.name, product.description)) {
+    return {
+      title: `${product.name} | ${categoryLabel(product.category)}`,
+      description: truncateDescription(product.description || `Browse ${product.name} in ${categoryLabel(product.category)} at Chaos Closet.`),
+      robots: { index: false, follow: true },
+    };
+  }
   const url = canonicalUrl(`/product/${product.slug}`);
-  const description = (product.description || `${product.name} in ${categoryLabel(product.category)} at Chaos Closet.`).slice(0, 160);
+  const description = truncateDescription(product.description || `${product.name} in ${categoryLabel(product.category)} at Chaos Closet.`);
   return {
     title: product.name,
     description,
@@ -70,7 +77,7 @@ export default async function ProductPage({ params }: Params) {
 
   return (
     <>
-      <JsonLd data={productJsonLd} />
+      {hasIndexableProductContent(product.name, product.description) && <JsonLd data={productJsonLd} />}
       <JsonLd data={breadcrumbJsonLd} />
       <SiteHeader />
       <main className="w-full px-3 pt-6 pb-20 sm:px-5 md:pt-10 lg:px-8">

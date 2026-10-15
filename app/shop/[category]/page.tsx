@@ -1,34 +1,38 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { CATEGORIES, categoryLabel } from "@/lib/catalog";
+import { CATEGORIES, categoryDescription, categoryLabel } from "@/lib/catalog";
 import { parsePage } from "@/lib/pagination";
-import { getCategoryProducts, isCategory } from "@/lib/storefront";
+import { categoryHasIndexableProducts, getCategoryProducts, isCategory } from "@/lib/storefront";
 import { cn } from "@/lib/utils";
 import { ListPagination } from "@/components/admin/list-pagination";
 import { SiteFooter } from "@/components/site/site-footer";
 import { SiteHeader } from "@/components/site/site-header";
 import { ProductCard } from "@/components/store/product-card";
 import { JsonLd } from "@/components/site/json-ld";
-import { canonicalUrl } from "@/lib/seo";
+import { canonicalUrl, truncateDescription } from "@/lib/seo";
 
 type Params = { params: Promise<{ category: string }>; searchParams: Promise<{ page?: string | string[] }> };
 
 export async function generateMetadata({ params, searchParams }: Params): Promise<Metadata> {
   const [{ category }, { page }] = await Promise.all([params, searchParams]);
   if (!isCategory(category)) return { robots: { index: false, follow: false } };
-  const { info } = await getCategoryProducts(category, parsePage(typeof page === "string" ? page : page?.[0]));
+  const [{ info }, hasIndexableProducts] = await Promise.all([
+    getCategoryProducts(category, parsePage(typeof page === "string" ? page : page?.[0])),
+    categoryHasIndexableProducts(category),
+  ]);
   const label = categoryLabel(category);
   const canonical = canonicalUrl(`/shop/${category}${info.page > 1 ? `?page=${info.page}` : ""}`);
   const title = info.page > 1 ? `${label} – Page ${info.page}` : label;
-  const description = `Shop ${label} at Chaos Closet. Browse ${info.total} ${info.total === 1 ? "piece" : "pieces"} with cash on delivery and free shipping in Dibrugarh.`;
+  const pageContext = info.page > 1 ? ` Page ${info.page} of ${info.pages}.` : "";
+  const description = truncateDescription(`${categoryDescription(category)}${pageContext} Free shipping in Dibrugarh. Browse ${info.total} ${info.total === 1 ? "piece" : "pieces"} at Chaos Closet.`);
   return {
     title,
     description,
     alternates: { canonical },
     openGraph: { type: "website", title, description, url: canonical },
     twitter: { card: "summary", title, description },
-    ...(info.total === 0 ? { robots: { index: false, follow: true } } : {}),
+    ...(!hasIndexableProducts ? { robots: { index: false, follow: true } } : {}),
   };
 }
 
@@ -55,6 +59,7 @@ export default async function ShopCategoryPage({ params, searchParams }: Params)
           <p className="text-sm text-muted-foreground sm:text-base">
             {info.total === 0 ? "Nothing here yet." : `${info.total} piece${info.total === 1 ? "" : "s"}`}
           </p>
+          <p className="max-w-2xl text-sm leading-relaxed text-ink/70 sm:text-base">{categoryDescription(category)}</p>
         </div>
 
         {/* Category switcher: scrolls sideways on phones instead of wrapping into a wall of chips */}

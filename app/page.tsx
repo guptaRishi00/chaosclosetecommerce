@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import { getCategoryShowcase } from "@/lib/storefront";
 import { HeroCarousel, type HeroSlide } from "@/components/site/hero-carousel";
 import { CategoryRow } from "@/components/store/category-row";
@@ -6,6 +7,8 @@ import { SiteHeader } from "@/components/site/site-header";
 import { PromiseStrip } from "@/components/store/promise-strip";
 import { JsonLd } from "@/components/site/json-ld";
 import { canonicalUrl } from "@/lib/seo";
+
+export const metadata: Metadata = { alternates: { canonical: "/" } };
 
 // Desktop images are landscape; `mobileSrc` is a portrait (1080x1920) version for phones.
 // public/hero/*-mobile.jpg are subject-aware crops of the desktop shots; replace them with

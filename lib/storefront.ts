@@ -2,6 +2,7 @@ import { CATEGORIES, CATEGORY_VALUES, type CategoryValue } from "@/lib/catalog";
 import { connectDB } from "@/lib/db";
 import { pageInfo } from "@/lib/pagination";
 import { ProductModel } from "@/models/Product";
+import { hasIndexableProductContent } from "@/lib/seo";
 
 // Server-only catalogue queries for the public storefront. Returns plain, serialisable objects.
 
@@ -74,6 +75,26 @@ export async function getCategoryProducts(category: CategoryValue, requestedPage
     .limit(SHOP_PAGE_SIZE)
     .lean();
   return { info, products: products.map((p) => toCard(p as unknown as RawCard)) };
+}
+
+/** True only when the category has at least one product with enough real detail for search indexing. */
+export async function categoryHasIndexableProducts(category: CategoryValue): Promise<boolean> {
+  await connectDB();
+  const cursor = ProductModel.find(
+    {
+      category,
+      $expr: { $gte: [{ $strLenCP: { $ifNull: ["$description", ""] } }, 80] },
+    },
+    { name: 1, description: 1 },
+  ).lean().cursor();
+
+  for await (const product of cursor) {
+    if (hasIndexableProductContent(product.name, product.description ?? "")) {
+      await cursor.close();
+      return true;
+    }
+  }
+  return false;
 }
 
 export type ProductDetail = ProductCardData & { description: string; category: CategoryValue; gallery: string[] };
