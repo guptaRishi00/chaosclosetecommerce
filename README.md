@@ -13,7 +13,7 @@ bun dev
 ## SEO and Google Search Console
 
 - Set `NEXT_PUBLIC_SITE_URL=https://chaoscloset.vercel.app` in the Vercel **Production** environment. The application uses its preview URL and `noindex` metadata for Vercel Preview deployments; local development uses `http://localhost:3000` and is also noindex.
-- Optional: add the verification value Google gives you for the URL-prefix property `https://chaoscloset.vercel.app` as `GOOGLE_SITE_VERIFICATION` in Vercel Production, then redeploy. The value is emitted through Next.js metadata and is not required to build.
+- The Google Search Console verification value is configured in the root metadata. You can override it with `GOOGLE_SITE_VERIFICATION` in Vercel Production if Google issues a replacement, then redeploy.
 - After deployment, open `https://chaoscloset.vercel.app/robots.txt` and `https://chaoscloset.vercel.app/sitemap.xml` to confirm they respond. In Search Console, complete the URL-prefix verification, submit `sitemap.xml` under **Sitemaps**, and use **URL Inspection** to inspect the homepage and a product URL. Request indexing for important URLs when offered, then review **Pages** for indexing issues. Submission and verification must be completed in your Google account.
 - Google Analytics 4 can be added later using the measurement ID from Analytics. Configure consent and privacy disclosures appropriate to your audience before adding analytics cookies or tracking scripts; this project does not currently load them.
 

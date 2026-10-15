@@ -39,7 +39,7 @@ export const metadata: Metadata = {
     description: "Shop thrift and surplus clothing, streetwear, jeans, shirts and more at Chaos Closet.",
     images: ["/logo-wordmark.png"],
   },
-  verification: { google: process.env.GOOGLE_SITE_VERIFICATION || undefined },
+  verification: { google: process.env.GOOGLE_SITE_VERIFICATION || "-jHGWbl7Lbc8attcrCOkpgYU1INn5_ETkIn5xTlRFt4" },
   robots: isIndexableDeployment()
     ? { index: true, follow: true, googleBot: { index: true, follow: true } }
     : { index: false, follow: false, googleBot: { index: false, follow: false } },
